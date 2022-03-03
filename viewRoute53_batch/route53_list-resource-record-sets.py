@@ -43,7 +43,7 @@ def connect_mysql(*args):
     username = "root"
     password = "fdsa1234"
     port = 3306
-    database = "aws_db"
+    database = "db_route53"
     
     # Insert Query
     conn = pymysql.connect(host=host, user=username, passwd=password, port=port, database=database)
