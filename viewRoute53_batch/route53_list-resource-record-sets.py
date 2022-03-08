@@ -3,19 +3,19 @@ import boto3
 import pymysql
 import json
 
+# aws route53 list-hosted-zones --profile 
+def list_hosted_zones():
+    route53 = boto3.client('route53')
+
 # aws route53 list_resource_record_sets --hosted-zone-id <hosted_zone_ID>
 def list_resource_record_sets():
     route53 = boto3.client('route53')
     response = route53.list_resource_record_sets(HostedZoneId='Z0338876FY905DAOM13I')
     
-    truncate_mysql()
+    
     for ResourceRecordsCounts in response['ResourceRecordSets']:
         res = [ ResourceRecordsCounts['Name'],  ResourceRecordsCounts['Type'], ResourceRecordsCounts['ResourceRecords'], ResourceRecordsCounts['TTL'] ]
         connect_mysql(res)
-    
-# aws route53 list-hosted-zones --profile 
-def list_hosted_zones():
-    route53 = boto3.client('route53')
 
 def truncate_mysql(*args):
     # DB Connection Data
@@ -49,7 +49,7 @@ def connect_mysql(*args):
     conn = pymysql.connect(host=host, user=username, passwd=password, port=port, database=database)
     
     
-    query = "INSERT INTO list_resource_record_sets \
+    query = "INSERT INTO test_table \
         (record_name, record_type, record_routing_table, record_value, record_ttl, record_hosted_id) VALUE \
         (%s, %s, 'routing_table', %s, %s , 'woobeom')"
         
