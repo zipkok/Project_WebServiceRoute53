@@ -1,8 +1,6 @@
 package aws.route53.service;
 
-import aws.route53.Entity.ListHostedZonesEntity;
 import aws.route53.repository.ListHostedZonesRepository;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.regions.Region;
@@ -14,7 +12,6 @@ import software.amazon.awssdk.services.route53.model.Route53Exception;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ListResourceRecordSets {

@@ -1,4 +1,4 @@
-package aws.route53.Entity;
+package aws.route53.entity;
 
 import lombok.*;
 
@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Setter
 @AllArgsConstructor
 @ToString
-@Table(name = "tb_account")
+@Table(name = "tb_list_hosted_zones")
 public class ListHostedZonesEntity {
     @Id
     @GeneratedValue

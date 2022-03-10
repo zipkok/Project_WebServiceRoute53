@@ -28,6 +28,8 @@ dependencies {
 	implementation 'software.amazon.awssdk:route53'
 	implementation 'software.amazon.awssdk:s3'
 	testImplementation group: 'junit', name: 'junit', version: '4.11'
+	compileOnly 'io.springfox:springfox-swagger2:2.9.2'
+	compileOnly 'io.springfox:springfox-swagger-ui:2.9.2'
 }
 
 tasks.named('test') {

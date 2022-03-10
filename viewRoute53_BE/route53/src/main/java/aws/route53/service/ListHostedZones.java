@@ -1,6 +1,8 @@
 package aws.route53.service;
 
-import aws.route53.Entity.ListHostedZonesEntity;
+import aws.route53.entity.AccountEntity;
+import aws.route53.entity.ListHostedZonesEntity;
+import aws.route53.repository.AccountRepository;
 import aws.route53.repository.ListHostedZonesRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,9 @@ public class ListHostedZones {
         return list;
     }
 
+    @Autowired
+    AccountRepository accountRepository;
+
     @Transactional
     public List<HashMap<Object, Object>> listZones(Route53Client route53Client) {
         List<HashMap<Object, Object>> list = new ArrayList<>();
@@ -44,16 +49,26 @@ public class ListHostedZones {
             List<HostedZone> checklist = route53Client.listHostedZones().hostedZones();
 
             // 이미 존재하는 데이터 Select
-            String existDomainName = listHostedZonesRepository.findAllByOrderByAccountIdxDesc().toString();
+            String existDomainName = accountRepository.findAllByOrderByAccountIdxDesc().toString();
 
             // 값을 비교할 때 사용할 toString 데이터
             for (HostedZone result: checklist) {
                 // 값이 존재하지 않을 때 -> Insert
                 if(!existDomainName.contains(result.name())) {
-                    ListHostedZonesEntity insertData = new ListHostedZonesEntity();
-                    insertData.setHostZoneId(result.id());
-                    insertData.setHostZoneName(result.name());
-                    listHostedZonesRepository.save(insertData);
+                    AccountEntity insertData = new AccountEntity();
+                    
+                    insertData.setHostedZoneId(result.id());
+                    insertData.setHostedZoneName(result.name());
+                    insertData.setAccountName("AccountName");
+                    insertData.setTeam("Team");
+                    
+                    accountRepository.save(insertData);
+
+                    // ListHostedZonesEntity insertData = new ListHostedZonesEntity();
+                    // insertData.setHostZoneId(result.id());
+                    // insertData.setHostZoneName(result.name());
+                    // listHostedZonesRepository.save(insertData);
+
                     System.out.println("============================================");
                 }
             }

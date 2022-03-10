@@ -2,18 +2,18 @@
   <div>
     <v-container>
       <v-card>
-        <v-card-title> Route53 할 사람?</v-card-title>
+        <v-card-title> Route53 조회하려고? </v-card-title>
         <v-container>
           <v-card-actions>
+            <!-- TODO: autocomplete multiple 설정 추가 -->
             <v-autocomplete
               v-model="values"
-              :items="items"
+              :items="accountItems"
               outlined
               dense
               chips
               small-chips
-              label="도메인을 선택하세요."
-              multiple
+              label="도메인을 선택하고 오른쪽 Reload 눌러."
               class="pr-5 pt-7"
             />
 
@@ -48,26 +48,31 @@
         </v-container>
       </v-card>
     </v-container>
-    <v-card>
-      {{ recordsItems }}
-    </v-card>
 
     <v-container>
-      <v-card-title>
-        <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="Search"
-          single-line
-          hide-details
-          outlined
-        ></v-text-field>
-      </v-card-title>
-      <v-data-table
-        :headers="headers"
-        :items="recordsItems"
-        :search="search"
-      ></v-data-table>
+      <v-card>
+        <v-card-title>
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="어떤 도메인 찾아?"
+            single-line
+            hide-details
+            outlined
+          ></v-text-field>
+        </v-card-title>
+        <v-data-table
+          :headers="headers"
+          :items="recordsItems"
+          :search="search"
+        ></v-data-table>
+      </v-card>
+    </v-container>
+
+    <v-container>
+      <v-card>
+        {{ recordsItems }}
+      </v-card>
     </v-container>
   </div>
 </template>
@@ -77,13 +82,7 @@ export default {
   data() {
     return {
       // autoCompletes
-      items: [
-        'wooboem.com - ap-northeast-2 - 우리팀',
-        'wooboem.com - us-east-1 - 우리팀',
-        'kyoung.com - us-east-1 - 다른팀',
-        'kyoung.com - ap-northeast-2 - 다른팀',
-      ],
-      values: [],
+      values: ['what'],
 
       // Table
       search: '',
@@ -94,6 +93,7 @@ export default {
         { text: 'TTL', value: 'recordExpire' },
         { text: 'Routing Policy', value: 'routingPolicy' },
       ],
+      /*
       desserts: [
         {
           recordName: 'woobeom',
@@ -112,6 +112,7 @@ export default {
           routingPolicy: 'Simple',
         },
       ],
+      */
     }
   },
 
@@ -119,14 +120,35 @@ export default {
     recordsItems() {
       return this.$store.state.record.recordsItems
     },
+
+    accountItems() {
+      return this.$store.state.account.accountItems
+      // return this.$store.state.record.test
+    },
+  },
+
+  mounted() {
+    this.$store.dispatch('account/loadAccountItems')
   },
 
   methods: {
     addHostZoneId() {
-      //
+      // Account 등록하면, reload 해야함.
+    },
+
+    loadAccountItems() {
+      this.$store.dispatch('account/loadAccountItems')
     },
 
     reloadHostZoneIds() {
+      /*
+      TODO: Account 정보를 받아서 /recordsets/{HostedZoneId} POST
+            만약 다른 값이 있으면 저장, 모두 같으면 저장 안함.
+            Account 정보를 받아서 /recordsets/{HostedZoneId} GET
+            그 값을 Table에 출력
+      */
+
+      // FIXME: {HostedZoneId}로 변경해야함.
       this.$store.dispatch('record/loadRecordSetItems')
     },
   },
