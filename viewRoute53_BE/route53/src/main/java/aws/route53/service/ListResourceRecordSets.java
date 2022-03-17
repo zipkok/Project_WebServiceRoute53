@@ -1,5 +1,7 @@
 package aws.route53.service;
 
+import aws.route53.entity.RecordSetsEntity;
+import aws.route53.entity.RecordSetsItemsEntity;
 import aws.route53.repository.ListHostedZonesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +18,6 @@ import java.util.List;
 @Service
 public class ListResourceRecordSets {
 
-
     @Autowired
     ListHostedZonesRepository listHostedZonesRepository;
 
@@ -30,21 +31,27 @@ public class ListResourceRecordSets {
         System.out.println("requestHostedZoneId = " + requestHostedZoneId);
 
         // listResourceRecord 호출
-        List<ResourceRecordSet> result = listResourceRecord(route53Client, requestHostedZoneId);
+        List<ResourceRecordSet> records = listResourceRecord(route53Client, requestHostedZoneId);
 
+        for (ResourceRecordSet record : records) {
+            RecordSetsEntity insertData = new RecordSetsEntity();
 
+            insertData.setRecordName(record.name());
+            insertData.setType(record.type().toString());
+            insertData.setExpire(record.ttl());
 
-        System.out.println("Result **** = " + result);
-
+            System.out.println("The Record name is: " + record.name());
+            System.out.println("The Record name is: " + record.regionAsString());
+        }
 
         route53Client.close();
-        return result;
+        return records;
     }
 
     public List<ResourceRecordSet> listResourceRecord(Route53Client route53Client, String hostedZoneId) {
         List<ResourceRecordSet> result = new ArrayList<>();
-        try {
 
+        try {
             // HostZoneID를 사용하여 쿼리함.
             ListResourceRecordSetsRequest request = ListResourceRecordSetsRequest.builder()
                     .hostedZoneId(hostedZoneId)
@@ -67,5 +74,5 @@ public class ListResourceRecordSets {
 
         return result;
     }
-
 }
+

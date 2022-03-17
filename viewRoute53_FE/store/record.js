@@ -17,7 +17,8 @@ export const actions = {
    */
   loadRecordSetItems({ commit, state }, payload) {
     this.$axios
-      .get(`http://localhost:6060/recordsets/Z0338876FY905DAOM13I`)
+      // .get(`http://localhost:6060/recordsets/Z0338876FY905DAOM13I`)
+      .get('http://localhost:6060/recordsets/' + payload.HostedZoneId)
       .then((res) => {
         commit('loadRecordSetItems', res.data)
       })

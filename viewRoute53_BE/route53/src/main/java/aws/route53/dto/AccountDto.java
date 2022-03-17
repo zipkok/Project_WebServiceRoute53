@@ -11,6 +11,14 @@ public class AccountDto {
     private String accountName;
     private String team;
 
+    // private String awsAccessKey;
+    // private String awsCredentialKey;
+    
+    // 빈 생성자
+    public AccountDto() {
+        
+    }
+    
     public AccountDto(AccountEntity accountEntity) {
         hostedZoneName  = accountEntity.getHostedZoneName();
         hostedZoneId    = accountEntity.getHostedZoneId();

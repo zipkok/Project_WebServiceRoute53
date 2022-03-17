@@ -2,7 +2,7 @@
   <div>
     <v-container>
       <v-card>
-        <v-card-title> Route53 조회하려고? </v-card-title>
+        <v-card-title> Route53 조회하려고? {{ values }} </v-card-title>
         <v-container>
           <v-card-actions>
             <!-- TODO: autocomplete multiple 설정 추가 -->
@@ -17,27 +17,17 @@
               class="pr-5 pt-7"
             />
 
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  color="primary"
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="addHostZoneId"
-                >
-                  <v-icon> mdi-account-plus</v-icon>
-                </v-btn>
-              </template>
-              <span>DNS Zone 등록</span>
-            </v-tooltip>
+            <!-- Method: addHostZoneId -->
+            <account-dialog />
 
+            <!-- Method: loadAccountItems -->
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
                   color="red"
                   v-bind="attrs"
                   v-on="on"
-                  @click="reloadHostZoneIds"
+                  @click="loadAccountItems"
                 >
                   <v-icon>mdi-reload</v-icon>
                 </v-btn>
@@ -59,60 +49,73 @@
             single-line
             hide-details
             outlined
-          ></v-text-field>
+            class="pr-5"
+          />
+
+          <!-- Methods: reloadHostZoneIds -->
+          <v-card-actions>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="reloadHostZoneIds(values)"
+                >
+                  <v-icon> mdi-rocket-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>DNS Zone 등록</span>
+            </v-tooltip>
+          </v-card-actions>
         </v-card-title>
-        <v-data-table
-          :headers="headers"
-          :items="recordsItems"
-          :search="search"
-        ></v-data-table>
+
+        <v-data-table :headers="headers" :items="recordsItems" :search="search">
+          <template v-slot:body="{ items }">
+            <tbody>
+              <tr v-for="item in items" :key="item.index">
+                <td>{{ item.recordName }}</td>
+                <td>{{ item.type }}</td>
+                <td>
+                  {{ item.recordSetsItems }}
+                </td>
+                <td>{{ item.expire }}</td>
+                <td>{{ item.routingPolicy }}</td>
+              </tr>
+            </tbody>
+          </template>
+        </v-data-table>
       </v-card>
     </v-container>
 
     <v-container>
       <v-card>
-        {{ recordsItems }}
+        {{ recordsItems.recordSetsItems }}
       </v-card>
     </v-container>
   </div>
 </template>
 
 <script>
+import AccountDialog from '~/components/account/dialog'
 export default {
+  components: {
+    AccountDialog,
+  },
+
   data() {
     return {
       // autoCompletes
-      values: ['what'],
+      values: '',
 
       // Table
       search: '',
       headers: [
         { text: 'Record Name', value: 'recordName' },
         { text: 'Type', value: 'type' },
-        { text: 'Value', value: 'ResourceRecords' },
-        { text: 'TTL', value: 'recordExpire' },
+        { text: 'Value', value: 'recordSetsItems' },
+        { text: 'TTL', value: 'expire' },
         { text: 'Routing Policy', value: 'routingPolicy' },
       ],
-      /*
-      desserts: [
-        {
-          recordName: 'woobeom',
-          domainName: 'test.com',
-          dnsType: 'CNAME',
-          recordSet: 'woobeom.test.com',
-          recordExpire: 600,
-          routingPolicy: 'Simple',
-        },
-        {
-          recordName: 'kyoungMin',
-          domainName: 'test.com',
-          dnsType: 'A',
-          recordSet: '1.1.1.1',
-          recordExpire: 3600,
-          routingPolicy: 'Simple',
-        },
-      ],
-      */
     }
   },
 
@@ -140,16 +143,18 @@ export default {
       this.$store.dispatch('account/loadAccountItems')
     },
 
-    reloadHostZoneIds() {
+    reloadHostZoneIds(HostedZoneId) {
       /*
       TODO: Account 정보를 받아서 /recordsets/{HostedZoneId} POST
             만약 다른 값이 있으면 저장, 모두 같으면 저장 안함.
             Account 정보를 받아서 /recordsets/{HostedZoneId} GET
             그 값을 Table에 출력
       */
-
       // FIXME: {HostedZoneId}로 변경해야함.
-      this.$store.dispatch('record/loadRecordSetItems')
+      const req = HostedZoneId.substring(0, 20)
+      this.$store.dispatch('record/loadRecordSetItems', {
+        HostedZoneId: req,
+      })
     },
   },
 }

@@ -1,7 +1,8 @@
 package aws.route53.entity;
 
 
-import lombok.Data;
+import jdk.internal.jline.internal.Nullable;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -9,7 +10,9 @@ import java.util.List;
 
 @Entity
 @Data
+@NoArgsConstructor
 @Table(name = "tb_record_sets")
+@Getter @Setter
 public class RecordSetsEntity {
     @Id
     @GeneratedValue
@@ -18,8 +21,37 @@ public class RecordSetsEntity {
 
     private String recordName;
     private String type;
-    private String expire;
+    private Long expire;
+    private String hostedZoneId;
 
-    @OneToMany(mappedBy = "recordSetsEntity", cascade = CascadeType.ALL)
-    private List<RecordSetsItemsEntity> recordSetsItemsEntityList =  new ArrayList<>();
+    // Only Print a Latency Based
+    @Nullable
+    private String latencyLocation;
+
+    @OneToMany(mappedBy = "recordSets", cascade = CascadeType.ALL)
+    private List<RecordSetsItemsEntity> recordSetsItems =  new ArrayList<>();
+
+    public void addRecordSetsItem(RecordSetsItemsEntity recordSetsItemsEntity) {
+        recordSetsItems.add(recordSetsItemsEntity);
+        recordSetsItemsEntity.setRecordSets(this);
+    }
+
+    //== 생성 메서드 ==//
+    public static RecordSetsEntity createRecordSets(String recordName,
+                                                    String type,
+                                                    Long expire,
+                                                    String hostedZoneId,
+                                                    RecordSetsItemsEntity... recordSetsItems) {
+        RecordSetsEntity recordSets = new RecordSetsEntity();
+
+        recordSets.setRecordName(recordName);
+        recordSets.setType(type);
+        recordSets.setExpire(expire);
+        recordSets.setHostedZoneId(hostedZoneId);
+
+        for (RecordSetsItemsEntity recordSetsItem : recordSetsItems) {
+            recordSets.addRecordSetsItem(recordSetsItem);
+        }
+        return recordSets;
+    }
 }
