@@ -37,29 +37,38 @@
                     v-model="HostzoneName"
                     label="HostedZone*"
                     required
-                  ></v-text-field>
+                  />
                 </v-col>
                 <v-col cols="12">
                   <v-text-field
                     v-model="HostzoneId"
                     label="hostedZoneId*"
                     required
-                  ></v-text-field>
+                  />
+                </v-col>
+                <v-col cols="12">
+                  <v-text-field
+                    v-model="awsAccessKey"
+                    label="awsAccessKey*"
+                    required
+                  />
+                </v-col>
+                <v-col cols="12">
+                  <v-text-field
+                    v-model="awsCredentialKey"
+                    label="awsCredentialKey*"
+                    required
+                  />
                 </v-col>
                 <v-col cols="6">
-                  <v-text-field
-                    v-model="team"
-                    label="당신의 팀은?*"
-                    required
-                  ></v-text-field>
+                  <v-text-field v-model="team" label="당신의 팀은?*" required />
                 </v-col>
                 <v-col cols="6">
                   <v-text-field
                     v-model="awsAccount"
                     label="당신의 AWS 계정 이름은?*"
                     required
-                  >
-                  </v-text-field>
+                  />
                 </v-col>
               </v-row>
             </v-form>
@@ -86,12 +95,16 @@
 export default {
   data() {
     return {
+      // Form Validate
       valid: false,
 
+      // Form Data
       HostzoneName: '',
       HostzoneId: '',
       team: '',
       awsAccount: '',
+      awsAccessKey: '',
+      awsCredentialKey: '',
     }
   },
   computed: {
@@ -110,6 +123,8 @@ export default {
       this.HostzoneId = ''
       this.team = ''
       this.awsAccount = ''
+      this.awsAccessKey = ''
+      this.awsCredentialKey = ''
     },
 
     cancel() {
@@ -126,6 +141,8 @@ export default {
             hostedZoneId: this.HostzoneId,
             team: this.team,
             accountName: this.awsAccount,
+            awsAccessKey: this.awsAccessKey,
+            awsCredentialKey: this.awsCredentialKey,
           })
           .then((res) => {
             this.$store.dispatch('account/loadAccountItems')

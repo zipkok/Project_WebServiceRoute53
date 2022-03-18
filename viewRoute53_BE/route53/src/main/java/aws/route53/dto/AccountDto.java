@@ -11,8 +11,8 @@ public class AccountDto {
     private String accountName;
     private String team;
 
-    // private String awsAccessKey;
-    // private String awsCredentialKey;
+    private String awsAccessKey;
+    private String awsCredentialKey;
     
     // 빈 생성자
     public AccountDto() {
@@ -25,5 +25,8 @@ public class AccountDto {
 
         accountName     = accountEntity.getAccountName();
         team            = accountEntity.getTeam();
+
+        awsAccessKey = accountEntity.getAws_access_key();
+        awsCredentialKey = accountEntity.getAws_secret_key();
     }
 }

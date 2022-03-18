@@ -17,7 +17,11 @@ export const actions = {
    */
   loadRecordSetItems({ commit, state }, payload) {
     this.$axios
-      // .get(`http://localhost:6060/recordsets/Z0338876FY905DAOM13I`)
+      // .delete 하고
+
+      // .post 하는건 어때?
+
+      // .get RecordSets 조회
       .get('http://localhost:6060/recordsets/' + payload.HostedZoneId)
       .then((res) => {
         commit('loadRecordSetItems', res.data)
