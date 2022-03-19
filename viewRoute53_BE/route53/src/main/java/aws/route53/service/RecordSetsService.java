@@ -1,23 +1,25 @@
 package aws.route53.service;
 
-
 import aws.route53.entity.RecordSetsEntity;
 import aws.route53.entity.RecordSetsItemsEntity;
+
 import aws.route53.repository.RecordSetsItemsRepository;
 import aws.route53.repository.RecordSetsRepository;
-import net.bytebuddy.dynamic.scaffold.TypeWriter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import software.amazon.awssdk.auth.credentials.*;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsRequest;
 import software.amazon.awssdk.services.route53.model.ListResourceRecordSetsResponse;
-import software.amazon.awssdk.services.route53.model.ResourceRecord;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static javax.crypto.Cipher.SECRET_KEY;
 
 @Service
 public class RecordSetsService {
@@ -44,12 +46,18 @@ public class RecordSetsService {
     }
 
     @Transactional
-    public void createRecordSets(String hostedZoneId) throws Exception {
-        System.out.println("==========START=======RecordSetsService.createRecordSets 수행===============");
+    public void createRecordSets(String hostedZoneId, String awsAccessKey, String awsSecretKey) throws Exception {
 
-        // --profile -- region
+        // --profile
+        AwsBasicCredentials awsCreds = AwsBasicCredentials.create(awsAccessKey, awsSecretKey);
+
+        // -- region
         Region region = Region.AWS_GLOBAL;
-        Route53Client route53Client = Route53Client.builder()
+
+        // Execute awscli
+        Route53Client route53Client = Route53Client
+                .builder()
+                .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
                 .region(region)
                 .build();
 

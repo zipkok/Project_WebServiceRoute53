@@ -24,7 +24,9 @@ dependencies {
 	runtimeOnly 'mysql:mysql-connector-java'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
-	implementation platform('software.amazon.awssdk:bom:2.15.0')
+	implementation platform('software.amazon.awssdk:bom:2.16.1')
+	implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.180')
+
 	implementation 'software.amazon.awssdk:route53'
 	implementation 'software.amazon.awssdk:s3'
 	testImplementation group: 'junit', name: 'junit', version: '4.11'

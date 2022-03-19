@@ -43,12 +43,5 @@ public class RecordSetsDto {
                 .replaceAll("\\)", "")
                 .replaceAll("]", "")
                 .replaceAll("value=", "");
-
-//        recordSetsItems = recordSetsEntity
-//                .getRecordSetsItems()
-//                .stream()
-//                .map(recordSetsItems -> new RecordSetsItemsDto(recordSetsItems))
-//                .collect(Collectors.toList()).toString();
-
     }
 }
