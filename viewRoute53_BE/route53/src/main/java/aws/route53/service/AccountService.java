@@ -6,7 +6,9 @@ import aws.route53.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
@@ -14,8 +16,13 @@ public class AccountService {
     @Autowired
     AccountRepository accountRepository;
 
-    public List<AccountEntity> getAccount() throws Exception {
-        return accountRepository.findAllByOrderByAccountIdxDesc();
+    public List<AccountDto> getAccount() throws Exception {
+        List<AccountEntity> accounts = accountRepository.findAllByOrderByAccountIdxDesc();
+        List<AccountDto> result = accounts.stream()
+                .map(o -> new AccountDto(o))
+                .collect(Collectors.toList());
+
+        return result;
     }
 
     public List<AccountEntity> getAccountCredentials(String HostedZoneId) throws Exception {

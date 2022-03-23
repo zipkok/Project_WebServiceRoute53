@@ -24,34 +24,22 @@ public class RecordSetsEntity {
     private Long expire;
     private String hostedZoneId;
 
-    // Only Print a Latency Based
-    @Nullable
-    private String latencyLocation;
-
-    @OneToMany(mappedBy = "recordSets", cascade = CascadeType.ALL)
-    private List<RecordSetsItemsEntity> recordSetsItems =  new ArrayList<>();
-
-    public void addRecordSetsItem(RecordSetsItemsEntity recordSetsItemsEntity) {
-        recordSetsItems.add(recordSetsItemsEntity);
-        recordSetsItemsEntity.setRecordSets(this);
-    }
+    private String recordSetsValue;
 
     //== 생성 메서드 ==//
     public static RecordSetsEntity createRecordSets(String recordName,
                                                     String type,
                                                     Long expire,
                                                     String hostedZoneId,
-                                                    RecordSetsItemsEntity... recordSetsItems) {
+                                                    String recordSetsValue) {
         RecordSetsEntity recordSets = new RecordSetsEntity();
 
         recordSets.setRecordName(recordName);
         recordSets.setType(type);
         recordSets.setExpire(expire);
         recordSets.setHostedZoneId(hostedZoneId);
+        recordSets.setRecordSetsValue(recordSetsValue);
 
-        for (RecordSetsItemsEntity recordSetsItem : recordSetsItems) {
-            recordSets.addRecordSetsItem(recordSetsItem);
-        }
         return recordSets;
     }
 }

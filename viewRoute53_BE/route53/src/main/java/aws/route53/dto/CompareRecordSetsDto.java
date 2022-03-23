@@ -4,26 +4,20 @@ import aws.route53.entity.RecordSetsEntity;
 import lombok.Data;
 
 @Data
-public class RecordSetsDto {
-
+public class CompareRecordSetsDto {
     private String recordName;
     private String type;
     private Long expire;
-    private String hostedZoneId;
-
-    private String geoLocation;
-    private String latencyLocation;
 
     private String recordSetsValue;
 
     // 생성자
-    public RecordSetsDto() {}
+    public CompareRecordSetsDto() {}
 
-    public RecordSetsDto(RecordSetsEntity recordSetsEntity) {
+    public CompareRecordSetsDto(RecordSetsEntity recordSetsEntity) {
         recordName = recordSetsEntity.getRecordName();
         type = recordSetsEntity.getType();
         expire = recordSetsEntity.getExpire();
-        hostedZoneId = recordSetsEntity.getHostedZoneId();
         recordSetsValue = recordSetsEntity.getRecordSetsValue();
     }
 }

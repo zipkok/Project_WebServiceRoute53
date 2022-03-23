@@ -81,11 +81,11 @@
               <tr v-for="item in items" :key="item.index">
                 <td>{{ item.recordName }}</td>
                 <td>{{ item.type }}</td>
-                <td>
-                  {{ item.recordSetsItems }}
-                </td>
                 <td>{{ item.expire }}</td>
                 <td>{{ item.routingPolicy }}</td>
+                <td>
+                  {{ item.recordSetsValue }}
+                </td>
               </tr>
             </tbody>
           </template>
@@ -93,11 +93,6 @@
       </v-card>
     </v-container>
 
-    <v-container>
-      <v-card>
-        {{ recordsItems.recordSetsItems }}
-      </v-card>
-    </v-container>
     <snackbar :snackbar="snackbar" />
   </div>
 </template>
@@ -123,11 +118,11 @@ export default {
       // Table
       search: '',
       headers: [
-        { text: 'Record Name', value: 'recordName' },
-        { text: 'Type', value: 'type' },
-        { text: 'Value', value: 'recordSetsItems' },
-        { text: 'TTL', value: 'expire' },
-        { text: 'Routing Policy', value: 'routingPolicy' },
+        { text: 'Record Name', value: 'recordName', width: '10%' },
+        { text: 'Type', value: 'type', width: '10%' },
+        { text: 'TTL', value: 'expire', width: '10%' },
+        { text: 'Routing Policy', value: 'routingPolicy', width: '20%' },
+        { text: 'Value', value: 'recordSetsValue', width: '50%' },
       ],
     }
   },
