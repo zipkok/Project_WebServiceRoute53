@@ -1,6 +1,7 @@
 package aws.route53.service;
 
 import aws.route53.dto.CompareRecordSetsDto;
+import aws.route53.dto.RecordSetsDto;
 import aws.route53.entity.RecordSetsEntity;
 
 import aws.route53.repository.RecordSetsRepository;
@@ -22,6 +23,7 @@ import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RecordSetsService {
@@ -35,8 +37,12 @@ public class RecordSetsService {
         return recordSetsRepository.findAllByOrderByHostedZoneIdDesc();
     }
 
-    public List<RecordSetsEntity> getRecordSetsWithHostedZoneId(String HostedZoneId) throws  Exception {
-        return recordSetsRepository.findByHostedZoneIdOrderByRecordSetsIdxDesc(HostedZoneId);
+    public List<RecordSetsDto> getRecordSetsWithHostedZoneId(String HostedZoneId) throws  Exception {
+        List<RecordSetsEntity> recordsets =recordSetsRepository.findByHostedZoneIdOrderByRecordSetsIdxDesc(HostedZoneId);
+        List<RecordSetsDto> result = recordsets.stream()
+                        .map(o -> new RecordSetsDto(o))
+                        .collect(Collectors.toList());
+        return result;
     }
 
     @Transactional
@@ -82,7 +88,44 @@ public class RecordSetsService {
                     .replace("[","")
                     .replace("]","");
 
-            record.geoLocation();
+
+            String routingPolicy = "Simple";
+            String routingGeoLocation = "No";
+            String routingLatencyRegion = "No";
+            String routeWeight = "No";
+
+            // Routing Policy가 GeoLocation 경우
+            if (record.geoLocation() != null) {
+                routingGeoLocation = record.geoLocation().continentCode();
+                routingPolicy = "GeoLocation";
+            }
+
+            // Routing Policy가 Latency 경우
+            if (record.region() != null) {
+                routingLatencyRegion = record.region().toString();
+                routingPolicy = "Latency";
+            }
+
+            if (record.weight() != null) {
+                routeWeight = record.weight().toString();
+                routingPolicy = "Weight";
+            }
+
+            // RecordSetsEntity 생성
+            RecordSetsEntity recordSets = RecordSetsEntity.createRecordSets(
+                    record.name(),
+                    record.typeAsString(),
+                    record.ttl(),
+                    hostedZoneId,
+                    recordSetsItemsToString,
+                    routingPolicy,
+                    routingGeoLocation,
+                    routingLatencyRegion,
+                    routeWeight
+            );
+
+            // Repository로 저장
+            recordSetsRepository.save(recordSets);
         }
 
         // AWSCLI close()
@@ -127,13 +170,45 @@ public class RecordSetsService {
                     .replace("[","")
                     .replace("]","");
 
+
+            String routingPolicy = "Simple";
+            String routingGeoLocation = "-";
+            String routingLatencyRegion = "-";
+            String routeWeight = "No";
+
+
+            // Routing Policy가 GeoLocation 경우
+            if (record.geoLocation() != null) {
+                if(record.geoLocation().continentCode() != null) {
+                    routingGeoLocation = "대륙: " + record.geoLocation().continentCode();
+                } else {
+                    routingGeoLocation = "국가: " + record.geoLocation().countryCode();
+                }
+                routingPolicy = "GeoLocation";
+            }
+
+            // Routing Policy가 Latency 경우
+            if (record.region() != null) {
+                routingLatencyRegion = record.region().toString();
+                routingPolicy = "Latency";
+            }
+
+            if (record.weight() != null) {
+                routeWeight = record.weight().toString();
+                routingPolicy = "Weight";
+            }
+
             // RecordSetsEntity 생성
             RecordSetsEntity recordSets = RecordSetsEntity.createRecordSets(
                     record.name(),
                     record.typeAsString(),
                     record.ttl(),
                     hostedZoneId,
-                    recordSetsItemsToString
+                    recordSetsItemsToString,
+                    routingPolicy,
+                    routingGeoLocation,
+                    routingLatencyRegion,
+                    routeWeight
             );
 
             // Repository로 저장
@@ -179,6 +254,10 @@ public class RecordSetsService {
             compareHashMap.setType(a.getType());
             compareHashMap.setExpire(a.getExpire());
             compareHashMap.setRecordSetsValue((a.getRecordSetsValue()));
+            compareHashMap.setRoutingPolicy(a.getRoutingPolicy());
+            compareHashMap.setRouteGeoLocation(a.getRouteGeoLocation());
+            compareHashMap.setRouteLatencyRegion(a.getRouteLatencyRegion());
+            compareHashMap.setRouteWeight(a.getRouteWeight());
 
             dbListToHashMap.put(a.getRecordSetsIdx(), compareHashMap);
         }
@@ -197,12 +276,43 @@ public class RecordSetsService {
                     .replace("[","")
                     .replace("]","");
 
+
+            String routingPolicy = "Simple";
+            String routingGeoLocation = "-";
+            String routingLatencyRegion = "-";
+            String routeWeight = "-";
+
+            // Routing Policy가 GeoLocation 경우
+            if (record.geoLocation() != null) {
+                if(record.geoLocation().continentCode() != null) {
+                    routingGeoLocation = "대륙: " + record.geoLocation().continentCode();
+                } else {
+                    routingGeoLocation = "국가: " + record.geoLocation().countryCode();
+                }
+                routingPolicy = "GeoLocation";
+            }
+
+            // Routing Policy가 Latency 경우
+            if (record.region() != null) {
+                routingLatencyRegion = record.region().toString();
+                routingPolicy = "Latency";
+            }
+
+            if (record.weight() != null) {
+                routeWeight = record.weight().toString();
+                routingPolicy = "Weight";
+            }
+
             // 비교 데이터 생성
             CompareRecordSetsDto expectedUpdateRecordSets = new CompareRecordSetsDto();
             expectedUpdateRecordSets.setRecordName(record.name());
             expectedUpdateRecordSets.setType(record.typeAsString());
             expectedUpdateRecordSets.setExpire(record.ttl());
             expectedUpdateRecordSets.setRecordSetsValue(recordSetsItemsToString);
+            expectedUpdateRecordSets.setRoutingPolicy(routingPolicy);
+            expectedUpdateRecordSets.setRouteGeoLocation(routingGeoLocation);
+            expectedUpdateRecordSets.setRouteLatencyRegion(routingLatencyRegion);
+            expectedUpdateRecordSets.setRouteWeight(routeWeight);
 
             // Record가 HashMap에 존재하면 True (이미 등록된 값)
             // 비교값: recordName, type, expire, recordSetsItems
@@ -220,7 +330,11 @@ public class RecordSetsService {
                         record.typeAsString(),
                         record.ttl(),
                         hostedZoneId,
-                        recordSetsItemsToString
+                        recordSetsItemsToString,
+                        routingPolicy,
+                        routingGeoLocation,
+                        routingLatencyRegion,
+                        routeWeight
                 );
                 // Repository로 저장
                 recordSetsRepository.save(recordSets);

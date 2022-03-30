@@ -15,8 +15,8 @@ export const actions = {
   /*
    * Load a ListRecordSets using Account
    */
-  loadRecordSetItems({ commit, state }, payload) {
-    this.$axios
+  async loadRecordSetItems({ commit, state }, payload) {
+    await this.$axios
       // .delete 하고
 
       // .post 하는건 어때?

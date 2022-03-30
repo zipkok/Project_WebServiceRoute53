@@ -39,11 +39,7 @@ public class RecordSetsController {
      */
     @GetMapping("/recordsets/{HostedZoneId}")
     public List<RecordSetsDto> getRecordSetsWithHostedZoneId(@PathVariable String HostedZoneId) throws Exception {
-        List<RecordSetsEntity> recordsets = recordSetsService.getRecordSetsWithHostedZoneId(HostedZoneId);
-        List<RecordSetsDto> result = recordsets.stream()
-                .map(o -> new RecordSetsDto(o))
-                .collect(Collectors.toList());
-        return result;
+        return recordSetsService.getRecordSetsWithHostedZoneId(HostedZoneId);
     }
 
     /**
@@ -68,7 +64,7 @@ public class RecordSetsController {
     /**
      * Update
      */
-    @PutMapping("/recordsets/test/{HostedZoneId}")
+    @PutMapping("/recordsets/{HostedZoneId}")
     public HashMap<Integer, CompareRecordSetsDto> update(@PathVariable @Valid String HostedZoneId) throws Exception {
         List<AccountEntity> credentials = accountService.getAccountCredentials(HostedZoneId);
         return recordSetsService.updateRecordSets(HostedZoneId,

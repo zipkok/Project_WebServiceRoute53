@@ -1,55 +1,61 @@
 export const state = () => ({
   accountItems: [],
+  accountItem: [],
 
-  booleanDialog: false,
+  gettersAccountItems: [],
 })
 
 export const mutations = {
-  // toggle Dialog
-  toggleDialog(state, payload) {
-    state.booleanDialog = !state.booleanDialog
+  /* Load a Account Info */
+  loadAccountItems(state, payload) {
+    state.accountItems = []
+    state.accountItems = payload
   },
 
-  /*
-   * Load a Account Info
-   */
-  loadAccountItems(state, payload) {
-    // accountItems 초기화
-    state.accountItems = []
-
-    // accountItems 가공해서 autocomplete의 List로 사용
-    for (const idx in payload) {
-      const getterAccount =
-        payload[idx].hostedZoneId +
-        ' / ' +
-        payload[idx].team +
-        ' / ' +
-        payload[idx].accountName +
-        ' / ' +
-        payload[idx].hostedZoneName
-      state.accountItems.push(getterAccount)
-    }
+  getAccountItem(state, payload) {
+    state.accountItem = []
+    state.accountItem = payload
   },
 }
 
 export const actions = {
-  /*
-   * Account Info
-   */
-  loadAccountItems({ commit, state }, payload) {
-    this.$axios
+  // 전체 회원 정보 조회
+  async loadAccountItems({ commit, state }, payload) {
+    await this.$axios
       .get(`http://localhost:6060/account`)
-      .then((res) => {
-        commit('loadAccountItems', res.data)
+      .then((result) => {
+        commit('loadAccountItems', result.data)
       })
       .catch(() => {
         // TODO: 에러 명을 v-alert으로 전달하자.
       })
   },
 
-  saveAccount({ commit, state }, payload) {
-    this.$axios
+  // 단일 회원 정보 조회
+  async getAccountItem({ commit, state }, payload) {
+    await this.$axios
+      .get(`http://localhost:6060/account/idx/` + payload.accountIdx)
+      .then((result) => {
+        commit('getAccountItem', result.data)
+      })
+      .catch(() => {})
+  },
+
+  // 회원 정보 등록
+  async saveAccount({ commit, state }, payload) {
+    await this.$axios
       .post('http://localhost:6060/account', payload)
+      .then(() => {})
+      .catch(() => {})
+  },
+
+  // 회원 정보 수정
+  putAccount({ commit, state }, payload) {},
+
+  // 회원 정보 삭제
+  async deleteAccount({ commit, state }, payload) {
+    await this.$axios
+      .delete('http://localhost:6060/account/idx/' + payload.accountIdx)
       .then(() => {})
       .catch(() => {})
   },

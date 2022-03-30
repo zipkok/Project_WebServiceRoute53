@@ -11,6 +11,12 @@ public class CompareRecordSetsDto {
 
     private String recordSetsValue;
 
+    private String routingPolicy;
+    private String routeGeoLocation;
+    private String routeLatencyRegion;
+    private String routeWeight;
+
+
     // 생성자
     public CompareRecordSetsDto() {}
 
@@ -19,5 +25,11 @@ public class CompareRecordSetsDto {
         type = recordSetsEntity.getType();
         expire = recordSetsEntity.getExpire();
         recordSetsValue = recordSetsEntity.getRecordSetsValue();
+
+        routingPolicy = recordSetsEntity.getRoutingPolicy();
+        routeGeoLocation = recordSetsEntity.getRouteGeoLocation();
+        routeLatencyRegion = recordSetsEntity.getRouteLatencyRegion();
+        routeWeight = recordSetsEntity.getRouteWeight();
+
     }
 }

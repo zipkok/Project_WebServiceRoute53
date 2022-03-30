@@ -1,12 +1,13 @@
 <template>
   <div>
-    <v-dialog v-model="booleanDialog" max-width="600px">
+    <v-dialog v-model="booleanDialog" persistent max-width="600px">
       <template v-slot:activator="{ on: dialog, attrs: dialogattr }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on: tooltip, attrs: tooltipattr }">
             <v-btn
-              color="primary"
+              color="info"
               dark
+              small
               v-bind="{ ...dialogattr, tooltipattr }"
               v-on="{ ...tooltip, ...dialog }"
               @click="toggleDialog"
@@ -21,9 +22,12 @@
 
       <!-- Form Data -->
       <v-card>
-        <v-card-title>
-          <span class="text-h5">계정 등록 페이지</span>
-        </v-card-title>
+        <div style="background-color: #fffff0">
+          <v-card-title>
+            <span class="text-h5"> 신규 생성 </span>
+          </v-card-title>
+        </div>
+        <v-divider></v-divider>
         <v-card-text>
           <v-container>
             <v-form
@@ -34,15 +38,15 @@
               <v-row>
                 <v-col cols="12">
                   <v-text-field
-                    v-model="HostzoneName"
-                    label="HostedZone*"
+                    v-model="HostedzoneName"
+                    label="Zone Name*"
                     required
                   />
                 </v-col>
                 <v-col cols="12">
                   <v-text-field
-                    v-model="HostzoneId"
-                    label="hostedZoneId*"
+                    v-model="HostedzoneId"
+                    label="Zone Id*"
                     required
                   />
                 </v-col>
@@ -76,7 +80,9 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="cancel()"> 취소 </v-btn>
+          <v-btn color="blue darken-1" nuxt text @click="cancel()">
+            취소
+          </v-btn>
           <v-btn
             color="blue darken-1"
             text
@@ -95,32 +101,28 @@
 export default {
   data() {
     return {
+      booleanDialog: false,
       // Form Validate
       valid: false,
 
       // Form Data
-      HostzoneName: '',
-      HostzoneId: '',
+      HostedzoneName: '',
+      HostedzoneId: '',
       team: '',
       awsAccount: '',
       awsAccessKey: '',
       awsCredentialKey: '',
     }
   },
-  computed: {
-    booleanDialog() {
-      return this.$store.state.account.booleanDialog
-    },
-  },
 
   methods: {
     toggleDialog() {
-      this.$store.commit('account/toggleDialog')
+      this.booleanDialog = !this.booleanDialog
     },
 
     initialContents() {
-      this.HostzoneName = ''
-      this.HostzoneId = ''
+      this.HostedzoneName = ''
+      this.HostedzoneId = ''
       this.team = ''
       this.awsAccount = ''
       this.awsAccessKey = ''
@@ -128,32 +130,33 @@ export default {
     },
 
     cancel() {
-      this.initialContents()
-      this.toggleDialog()
+      try {
+        this.initialContents()
+      } catch (error) {
+      } finally {
+        this.toggleDialog()
+      }
     },
 
     async saveAccount(items) {
       // TODO: Validattion 조건 만들어야한다.
       if (this.$refs.form.validate()) {
-        await this.$store
-          .dispatch('account/saveAccount', {
-            hostedZoneName: this.HostzoneName,
-            hostedZoneId: this.HostzoneId,
-            team: this.team,
-            accountName: this.awsAccount,
-            awsAccessKey: this.awsAccessKey,
-            awsCredentialKey: this.awsCredentialKey,
-          })
-          .then((res) => {
-            this.$store.dispatch('account/loadAccountItems')
-          })
-          .catch(() => {
-            // TODO: Exception PAGE or Alert 만들기!
-          })
+        await this.$store.dispatch('account/saveAccount', {
+          hostedZoneName: this.HostedzoneName,
+          hostedZoneId: this.HostedzoneId,
+          team: this.team,
+          accountName: this.awsAccount,
+          awsAccessKey: this.awsAccessKey,
+          awsCredentialKey: this.awsCredentialKey,
+        })
       }
-
+      await this.$store.dispatch('account/loadAccountItems')
       await this.initialContents()
       await this.toggleDialog()
+    },
+
+    async loadAccountByAccountItems(items) {
+      await this.$store.dispatch('account/loadAccountByAccountItems')
     },
   },
 }

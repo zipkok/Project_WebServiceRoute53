@@ -6,9 +6,8 @@ import aws.route53.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class AccountService {
@@ -16,13 +15,22 @@ public class AccountService {
     @Autowired
     AccountRepository accountRepository;
 
-    public List<AccountDto> getAccount() throws Exception {
+    public List<AccountEntity> getAllAccount() throws Exception {
         List<AccountEntity> accounts = accountRepository.findAllByOrderByAccountIdxDesc();
-        List<AccountDto> result = accounts.stream()
-                .map(o -> new AccountDto(o))
-                .collect(Collectors.toList());
+//        List<AccountDto> result = accounts.stream()
+//                .map(o -> new AccountDto(o))
+//                .collect(Collectors.toList());
 
-        return result;
+        return accounts;
+    }
+
+    public List<AccountEntity> getAccountByAccountIdx(Integer accountIdx) throws Exception {
+        List<AccountEntity> account = accountRepository.findByAccountIdxOrderByAccountIdxDesc(accountIdx);
+        return account;
+    }
+
+    public void deleteAccountWithId(Integer accountIdx) throws Exception {
+        accountRepository.deleteById(accountIdx);
     }
 
     public List<AccountEntity> getAccountCredentials(String HostedZoneId) throws Exception {
@@ -38,19 +46,7 @@ public class AccountService {
                 accountDto.getTeam(),
                 accountDto.getAwsAccessKey(),
                 accountDto.getAwsCredentialKey());
-
         // RequestBody를 DB에 Insert
         accountRepository.save(result);
     }
-
-    /*
-     * 이미 존재하는 유저 체크
-     */
-/*    private void validateDuplicateMember(Member member) {
-        // Exception
-        List<Member> findMembers = memberRepository.findByName(member.getName());
-        if (!findMembers.isEmpty()) {
-            throw new IllegalStateException("이미 존재하는 회원입니다.");
-        }
-    }*/
 }

@@ -26,8 +26,38 @@ public class RecordSetsEntity {
 
     private String recordSetsValue;
 
+    private String routingPolicy;
+    private String routeGeoLocation;
+    private String routeLatencyRegion;
+    private String routeWeight;
+
     //== 생성 메서드 ==//
     public static RecordSetsEntity createRecordSets(String recordName,
+                                                    String type,
+                                                    Long expire,
+                                                    String hostedZoneId,
+                                                    String recordSetsValue,
+                                                    String routingPolicy,
+                                                    String routingGeoLocation,
+                                                    String routingLatencyRegion,
+                                                    String routeWeight) {
+        RecordSetsEntity recordSets = new RecordSetsEntity();
+
+        recordSets.setRecordName(recordName);
+        recordSets.setType(type);
+        recordSets.setExpire(expire);
+        recordSets.setHostedZoneId(hostedZoneId);
+        recordSets.setRecordSetsValue(recordSetsValue);
+
+        recordSets.setRoutingPolicy(routingPolicy);
+        recordSets.setRouteGeoLocation(routingGeoLocation);
+        recordSets.setRouteLatencyRegion(routingLatencyRegion);
+        recordSets.setRouteWeight(routeWeight);
+
+        return recordSets;
+    }
+
+    public static RecordSetsEntity createRecordSetsOld(String recordName,
                                                     String type,
                                                     Long expire,
                                                     String hostedZoneId,

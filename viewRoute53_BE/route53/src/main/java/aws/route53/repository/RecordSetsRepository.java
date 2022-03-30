@@ -1,6 +1,5 @@
 package aws.route53.repository;
 
-import aws.route53.entity.AccountEntity;
 import aws.route53.entity.RecordSetsEntity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

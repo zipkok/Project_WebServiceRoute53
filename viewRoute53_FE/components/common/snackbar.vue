@@ -1,13 +1,14 @@
 <template>
   <div>
-    <v-snackbar v-model="snackbar.bool" timeout="5000" top>
+    <v-snackbar
+      v-model="snackbar.bool"
+      color="success"
+      absolute
+      outlined
+      timeout="1500"
+      top
+    >
       {{ snackbar.content }}
-
-      <template v-slot:action="{ attrs }">
-        <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
-          Close
-        </v-btn>
-      </template>
     </v-snackbar>
   </div>
 </template>
