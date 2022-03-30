@@ -105,7 +105,6 @@ export default {
   },
 
   async fetch() {
-    console.log('fetch')
     await this.$store.dispatch('account/loadAccountItems')
     await this.filterLoadAccountItems(this.accountItems)
 
@@ -202,19 +201,10 @@ export default {
     },
 
     filterRouting(geoValue, latencyValue, weightValue) {
-      if (geoValue === '-') {
-        if (latencyValue === '-') {
-          if (weightValue === '-') {
-            return '-'
-          } else {
-            return weightValue
-          }
-        } else {
-          return latencyValue
-        }
-      } else {
-        return geoValue
-      }
+      if (geoValue !== '-') return geoValue
+      else if (latencyValue !== '-') return latencyValue
+      else if (weightValue !== '-') return weightValue
+      else return '-'
     },
   },
 }
