@@ -22,7 +22,7 @@ export const actions = {
   // 전체 회원 정보 조회
   async loadAccountItems({ commit, state }, payload) {
     await this.$axios
-      .get(`http://localhost:6060/account`)
+      .get(process.env.backendUrl + '/account')
       .then((result) => {
         commit('loadAccountItems', result.data)
       })
@@ -34,7 +34,7 @@ export const actions = {
   // 단일 회원 정보 조회
   async getAccountItem({ commit, state }, payload) {
     await this.$axios
-      .get(`http://localhost:6060/account/idx/` + payload.accountIdx)
+      .get(process.env.backendUrl + '/account/idx/' + payload.accountIdx)
       .then((result) => {
         commit('getAccountItem', result.data)
       })
@@ -44,7 +44,7 @@ export const actions = {
   // 회원 정보 등록
   async saveAccount({ commit, state }, payload) {
     await this.$axios
-      .post('http://localhost:6060/account', payload)
+      .post(process.env.backendUrl + '/account', payload)
       .then(() => {})
       .catch(() => {})
   },
@@ -55,7 +55,7 @@ export const actions = {
   // 회원 정보 삭제
   async deleteAccount({ commit, state }, payload) {
     await this.$axios
-      .delete('http://localhost:6060/account/idx/' + payload.accountIdx)
+      .delete(process.env.backendUrl + '/account/idx/' + payload.accountIdx)
       .then(() => {})
       .catch(() => {})
   },

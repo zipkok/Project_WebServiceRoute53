@@ -1,8 +1,7 @@
 <template>
   <div>
     <v-container>
-      <v-card>
-        <v-card-title> DNS 찾아보기 </v-card-title>
+      <v-card elevation="20">
         <v-card-actions>
           <v-container>
             <!-- TODO: autocomplete multiple 설정 추가 -->
@@ -13,7 +12,7 @@
               clearable
               small-chips
               dense
-              label="도메인을 선택"
+              label="Domain Zone을 선택하세요."
               class="pl-1 pr-2"
               @click:clear="clearAutocomplate"
             />
@@ -41,13 +40,13 @@
     </v-container>
 
     <v-container>
-      <v-card>
+      <v-card elevation="20">
         <v-card-title>
           <!-- DataTable Header 윗 부분, 검색 -->
           <v-text-field
             v-model="search"
             append-icon="mdi-magnify"
-            label="도메인 찾기"
+            label="도메인을 검색하세요"
             class="pr-5"
           />
           <div class="pr-3">
@@ -84,7 +83,15 @@
                     )
                   }}
                 </td>
-                <td>{{ item.recordSetsValue }}</td>
+                <td v-if="filterValue(item.type)">
+                  <a
+                    :href="'http://localhost.com/' + item.recordSetsValue"
+                    target="_blank"
+                  >
+                    {{ item.recordSetsValue }}
+                  </a>
+                </td>
+                <td v-else>{{ item.recordSetsValue }}</td>
               </tr>
             </tbody>
           </template>
@@ -124,12 +131,12 @@ export default {
       // Table
       search: '',
       headers: [
-        { text: 'Record Name', width: '15%' },
-        { text: 'Type', width: '5%' },
-        { text: 'TTL', width: '10%' },
-        { text: 'Routing Policy', width: '17%' },
-        { text: 'Routing Value', width: '15%' },
-        { text: 'Record Value', width: '23%' },
+        { text: 'Record Name', width: '15%', class: 'warning--text' },
+        { text: 'Type', width: '8%', class: 'warning--text ' },
+        { text: 'TTL', width: '10%', class: 'warning--text ' },
+        { text: 'Routing Policy', width: '17%', class: 'warning--text' },
+        { text: 'Routing Value', width: '15%', class: 'warning--text ' },
+        { text: 'Record Value', width: '20%', class: 'warning--text ' },
       ],
     }
   },
@@ -173,6 +180,8 @@ export default {
         await this.$store.dispatch('record/loadRecordSetItems', {
           HostedZoneId: req,
         })
+
+        // TODO: 계정 로드 시 신규 데이터 조회 및 업데이트 필요
         this.snackbar.bool = true
         this.snackbar.content = '레코드 로드 성공.'
       }
@@ -206,8 +215,27 @@ export default {
       else if (weightValue !== '-') return weightValue
       else return '-'
     },
+
+    filterValue(getType, getValue) {
+      if (getType === 'A') return true
+      else return false
+    },
   },
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+a {
+  text-decoration: none;
+  color: blue;
+}
+
+.v-data-table-header {
+  background-color: black;
+}
+
+.custom-header {
+  color: blue;
+  background-color: blue;
+}
+</style>

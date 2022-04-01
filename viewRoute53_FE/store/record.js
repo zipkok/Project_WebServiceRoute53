@@ -12,26 +12,13 @@ export const mutations = {
 }
 
 export const actions = {
-  /*
-   * Load a ListRecordSets using Account
-   */
+  //  Load a ListRecordSets using Account
   async loadRecordSetItems({ commit, state }, payload) {
     await this.$axios
-      // .delete 하고
-
-      // .post 하는건 어때?
-
-      // .get RecordSets 조회
-      .get('http://localhost:6060/recordsets/' + payload.HostedZoneId)
+      .get(process.env.backendUrl + '/recordsets/' + payload.HostedZoneId)
       .then((res) => {
         commit('loadRecordSetItems', res.data)
       })
-      .catch(() => {
-        // TODO: 에러 명을 v-alert으로 전달하자.
-      })
+      .catch(() => {})
   },
-
-  /*
-   * Records Sets 조회
-   */
 }
