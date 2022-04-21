@@ -39,10 +39,9 @@ public class RecordSetsService {
 
     public List<RecordSetsDto> getRecordSetsWithHostedZoneId(String HostedZoneId) throws  Exception {
         List<RecordSetsEntity> recordsets =recordSetsRepository.findByHostedZoneIdOrderByRecordSetsIdxDesc(HostedZoneId);
-        List<RecordSetsDto> result = recordsets.stream()
+        return recordsets.stream()
                         .map(o -> new RecordSetsDto(o))
                         .collect(Collectors.toList());
-        return result;
     }
 
     @Transactional
@@ -50,88 +49,6 @@ public class RecordSetsService {
         // Delete FROM tb_record_sets WHERE HostedZoneId = ?
         recordSetsRepository.deleteByHostedZoneIdOrderByRecordSetsIdxDesc(HostedZoneId);
     }
-
-    public void createRecordSetsTest(String hostedZoneId, String awsAccessKey, String awsSecretKey) throws Exception {
-        // --profile
-        AwsBasicCredentials awsCreds = AwsBasicCredentials.create(awsAccessKey, awsSecretKey);
-
-        // -- region
-        Region region = Region.AWS_GLOBAL;
-
-        // Execute awscli
-        Route53Client route53Client = Route53Client
-                .builder()
-                .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
-                .region(region)
-                .build();
-
-        // aws route53 list-resource-recordsets
-        ListResourceRecordSetsRequest request = ListResourceRecordSetsRequest.builder()
-                .hostedZoneId(hostedZoneId)
-                .build();
-
-        ListResourceRecordSetsResponse listResourceRecordSets = route53Client.listResourceRecordSets(request);
-        List<ResourceRecordSet> records = listResourceRecordSets.resourceRecordSets();
-
-        System.out.println("records" + records);
-
-        // Data DB Insert
-        for (ResourceRecordSet record : records) {
-            // RecordSetsItemsEntity 생성
-            List<String> recordSetsItemsParseToList = new ArrayList<>();
-
-            for (ResourceRecord a :  record.resourceRecords() ) {
-                recordSetsItemsParseToList.add(a.value());
-            }
-            String recordSetsItemsToString = recordSetsItemsParseToList
-                    .toString()
-                    .replace("[","")
-                    .replace("]","");
-
-
-            String routingPolicy = "Simple";
-            String routingGeoLocation = "No";
-            String routingLatencyRegion = "No";
-            String routeWeight = "No";
-
-            // Routing Policy가 GeoLocation 경우
-            if (record.geoLocation() != null) {
-                routingGeoLocation = record.geoLocation().continentCode();
-                routingPolicy = "GeoLocation";
-            }
-
-            // Routing Policy가 Latency 경우
-            if (record.region() != null) {
-                routingLatencyRegion = record.region().toString();
-                routingPolicy = "Latency";
-            }
-
-            if (record.weight() != null) {
-                routeWeight = record.weight().toString();
-                routingPolicy = "Weight";
-            }
-
-            // RecordSetsEntity 생성
-            RecordSetsEntity recordSets = RecordSetsEntity.createRecordSets(
-                    record.name(),
-                    record.typeAsString(),
-                    record.ttl(),
-                    hostedZoneId,
-                    recordSetsItemsToString,
-                    routingPolicy,
-                    routingGeoLocation,
-                    routingLatencyRegion,
-                    routeWeight
-            );
-
-            // Repository로 저장
-            recordSetsRepository.save(recordSets);
-        }
-
-        // AWSCLI close()
-        route53Client.close();
-    }
-
 
     public void createRecordSets(String hostedZoneId, String awsAccessKey, String awsSecretKey) throws Exception {
         // --profile
@@ -258,13 +175,11 @@ public class RecordSetsService {
             compareHashMap.setRouteGeoLocation(a.getRouteGeoLocation());
             compareHashMap.setRouteLatencyRegion(a.getRouteLatencyRegion());
             compareHashMap.setRouteWeight(a.getRouteWeight());
-
             dbListToHashMap.put(a.getRecordSetsIdx(), compareHashMap);
         }
 
-        /**
-        * 비교를 위해 records 데이터 정제, HashMap 과 awscli 비교
-        */
+
+        // 비교를 위해 records 데이터 정제, HashMap 과 awscli 비교
         for (ResourceRecordSet record : records) {
             List<String> recordSetsItemsParseToList = new ArrayList<>();
 
@@ -321,10 +236,12 @@ public class RecordSetsService {
                 System.out.println("True" + expectedUpdateRecordSets);
                 // 변경된 값이 있는지 확인.
 
-            // Record가 HashMap에 존재하지 않으면 False (신규 데이터)
+            // Record가 HashMap에 존재하지 않으면 False (수정이 필요한 데이터)
             } else {
                 System.out.println("================================");
                 System.out.println("False" + expectedUpdateRecordSets);
+                System.out.println("False" + dbListToHashMap.containsValue(expectedUpdateRecordSets));
+                System.out.println("================================");
                 RecordSetsEntity recordSets = RecordSetsEntity.createRecordSets(
                         record.name(),
                         record.typeAsString(),
@@ -336,7 +253,6 @@ public class RecordSetsService {
                         routingLatencyRegion,
                         routeWeight
                 );
-                // Repository로 저장
                 recordSetsRepository.save(recordSets);
             }
         }

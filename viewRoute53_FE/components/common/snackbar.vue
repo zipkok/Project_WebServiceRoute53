@@ -2,7 +2,7 @@
   <div>
     <v-snackbar
       v-model="snackbar.bool"
-      color="success"
+      :color="snackbar.color"
       absolute
       outlined
       timeout="1500"

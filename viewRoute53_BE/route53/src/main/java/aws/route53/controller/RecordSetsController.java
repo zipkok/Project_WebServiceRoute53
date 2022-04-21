@@ -3,7 +3,6 @@ package aws.route53.controller;
 import aws.route53.dto.CompareRecordSetsDto;
 import aws.route53.dto.RecordSetsDto;
 import aws.route53.entity.AccountEntity;
-import aws.route53.entity.RecordSetsEntity;
 import aws.route53.service.AccountService;
 import aws.route53.service.RecordSetsService;
 
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin("*")
@@ -25,20 +23,20 @@ public class RecordSetsController {
     @Autowired
     AccountService accountService;
 
-    @GetMapping("/recordsets/test/{HostedZoneId}")
-    public void test(@PathVariable @Valid String HostedZoneId) throws Exception {
-        List<AccountEntity> credentials = accountService.getAccountCredentials(HostedZoneId);
-        recordSetsService.createRecordSetsTest(HostedZoneId,
-                credentials.get(0).getAws_access_key(),
-                credentials.get(0).getAws_secret_key());
-
-    }
+//    @GetMapping("/recordsets/test/{HostedZoneId}")
+//    public void test(@PathVariable @Valid String HostedZoneId) throws Exception {
+//        List<AccountEntity> credentials = accountService.getAccountCredentials(HostedZoneId);
+//        recordSetsService.createRecordSets(HostedZoneId,
+//                credentials.get(0).getAws_access_key(),
+//                credentials.get(0).getAws_secret_key());
+//
+//    }
 
     /**
      * HostedZoneId를 기준으로 DB에서 데이터 조회 후 Response
      */
     @GetMapping("/recordsets/{HostedZoneId}")
-    public List<RecordSetsDto> getRecordSetsWithHostedZoneId(@PathVariable String HostedZoneId) throws Exception {
+    public List<RecordSetsDto> getRecordSetsWithHostedZoneId(@PathVariable @Valid String HostedZoneId) throws Exception {
         return recordSetsService.getRecordSetsWithHostedZoneId(HostedZoneId);
     }
 

@@ -26,7 +26,7 @@ public class AccountController {
      * account 조회
      */
     @GetMapping("/account")
-    public ResponseEntity<List<AccountEntity>> getAccount() throws Exception {
+    public ResponseEntity<List<AccountDto>> getAccount() throws Exception {
         return ResponseEntity.ok().body(accountService.getAllAccount());
     }
 
@@ -51,7 +51,7 @@ public class AccountController {
      */
     @PostMapping("/account")
     public ResponseEntity saveAccount(@RequestBody AccountDto req) throws Exception {
-        accountService.save(req);
+        accountService.saveAccount(req);
         return ResponseEntity.ok().body(accountService.getAllAccount());
     }
 
@@ -68,9 +68,10 @@ public class AccountController {
     /**
      * Account 정보 수정
      */
-    @PutMapping("/account/{HostedZoneId}")
+    @PutMapping("/account/idx/{accountIdx}")
     public ResponseEntity updateToPutAccount(@RequestBody AccountDto req) throws Exception {
         // getId로 회원 조회 후
+        accountService.putAccount(req);
         return ResponseEntity.ok().body(accountService.getAllAccount());
     }
 }

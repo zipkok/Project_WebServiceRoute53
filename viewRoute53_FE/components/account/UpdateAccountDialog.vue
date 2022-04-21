@@ -1,11 +1,6 @@
 <template>
   <div>
-    <v-dialog
-      v-model="booleanDialog"
-      :retain-focus="false"
-      persistent
-      max-width="600px"
-    >
+    <v-dialog v-model="booleanDialog" persistent max-width="500px">
       <template v-slot:activator="{ on: dialog, attrs: dialogattr }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on: tooltip, attrs: tooltipattr }">
@@ -28,73 +23,62 @@
 
       <!-- Form Data -->
       <v-card>
-        <div style="background-color: #fffff0">
-          <v-card-title>
-            <span class="text-h5"> Account 정보 수정 </span>
-          </v-card-title>
-        </div>
-        <v-divider></v-divider>
-        <v-card-text>
-          <v-container>
-            <v-form ref="form" v-model="valid" @submit.prevent="editItem(item)">
-              <v-row>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="HostedzoneName"
-                    label="Zone Name*"
-                    required
-                  />
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="HostedzoneId"
-                    label="Zone Id*"
-                    required
-                  />
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="awsAccessKey"
-                    label="awsAccessKey*"
-                    required
-                  />
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="awsCredentialKey"
-                    label="awsCredentialKey*"
-                    required
-                  />
-                </v-col>
-                <v-col cols="6">
-                  <v-text-field v-model="team" label="당신의 팀은?*" required />
-                </v-col>
-                <v-col cols="6">
-                  <v-text-field
-                    v-model="awsAccount"
-                    label="당신의 AWS 계정 이름은?*"
-                    required
-                  />
-                </v-col>
-              </v-row>
-            </v-form>
-          </v-container>
-        </v-card-text>
+        <v-card-title class="blue-grey lighten-4">
+          <span class="text-h6" dark> Account 정보 수정 </span>
+        </v-card-title>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" nuxt text @click="cancel()">
-            취소
-          </v-btn>
-          <v-btn
-            color="blue darken-1"
-            text
-            type="submit"
-            @click="saveAccount()"
-          >
-            저장
-          </v-btn>
-        </v-card-actions>
+        <v-divider></v-divider>
+
+        <v-card-text>
+          <v-form ref="form" v-model="valid" @submit.prevent="editAccount()">
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="HostedzoneName"
+                  label="Zone Name*"
+                  required
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="HostedzoneId"
+                  label="Zone Id*"
+                  required
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="awsAccessKey"
+                  label="awsAccessKey*"
+                  required
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="awsCredentialKey"
+                  label="awsCredentialKey*"
+                  required
+                />
+              </v-col>
+              <v-col cols="6">
+                <v-text-field v-model="team" label="당신의 팀은?*" required />
+              </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  v-model="awsAccount"
+                  label="당신의 AWS 계정 이름은?*"
+                  required
+                />
+              </v-col>
+            </v-row>
+            <v-card-actions>
+              <v-btn color="blue darken-1" nuxt text @click="cancel()">
+                취소
+              </v-btn>
+              <v-btn color="blue darken-1" text type="submit"> 저장 </v-btn>
+            </v-card-actions>
+          </v-form>
+        </v-card-text>
       </v-card>
     </v-dialog>
   </div>
@@ -117,6 +101,7 @@ export default {
       valid: false,
 
       // Form Data
+      accountIdx: '',
       HostedzoneName: '',
       HostedzoneId: '',
       team: '',
@@ -133,12 +118,14 @@ export default {
 
     enableDialog(item) {
       try {
-        this.HostedzoneName = this.item.hostedZoneName
+        console.log(item)
+        this.accountIdx = item.accountIdx
+        this.HostedzoneName = item.hostedZoneName
         this.HostedzoneId = item.hostedZoneId
         this.team = item.team
         this.awsAccount = item.accountName
-        this.awsAccessKey = item.aws_access_key
-        this.awsCredentialKey = item.aws_secret_key
+        this.awsAccessKey = item.awsAccessKey
+        this.awsCredentialKey = item.awsCredentialKey
       } catch (error) {
       } finally {
         this.toggleDialog()
@@ -146,6 +133,7 @@ export default {
     },
 
     initialContents() {
+      this.accountIdx = ''
       this.HostedzoneName = ''
       this.HostedzoneId = ''
       this.team = ''
@@ -159,35 +147,26 @@ export default {
       this.toggleDialog()
     },
 
-    async saveAccount(items) {
-      // TODO: Validattion 조건 만들어야한다.
+    async editAccount() {
       if (this.$refs.form.validate()) {
-        await this.$store
-          .dispatch('account/putAccount', {
+        try {
+          await this.$store.dispatch('account/putAccount', {
+            accountIdx: this.accountIdx,
+            accountName: this.awsAccount,
+            team: this.team,
             hostedZoneName: this.HostedzoneName,
             hostedZoneId: this.HostedzoneId,
-            team: this.team,
-            accountName: this.awsAccount,
             awsAccessKey: this.awsAccessKey,
             awsCredentialKey: this.awsCredentialKey,
           })
-          .then((res) => {
-            this.$store.dispatch('account/loadAccountItems')
-          })
-          .catch(() => {
-            // TODO: Exception PAGE or Alert 만들기!
-          })
-      }
 
+          await this.$store.dispatch('account/loadAccountItems')
+        } catch (error) {}
+        // TODO: Exception PAGE or Alert 만들기!
+      }
       await this.initialContents()
       await this.toggleDialog()
     },
-
-    async loadAccountByAccountItems(items) {
-      await this.$store.dispatch('account/loadAccountByAccountItems')
-    },
-
-    editItem(value) {},
   },
 }
 </script>

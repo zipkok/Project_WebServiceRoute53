@@ -1,8 +1,12 @@
 import colors from 'vuetify/es5/util/colors'
 
 export default {
+  server: {
+    port: 5050,
+  },
+
   env: {
-    backendUrl: process.env.backendUrl || 'http://localhost:6060',
+    backendUrl: process.env.backendUrl || 'http://localhost:5051',
   },
   /*
    ** Nuxt rendering mode
@@ -74,7 +78,7 @@ export default {
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
     theme: {
-      dark: false,
+      dark: true,
       themes: {
         dark: {
           primary: colors.blue.darken2,

@@ -101,6 +101,7 @@ export default {
       // TODO: Validattion 조건 만들어야한다.
       if (this.$refs.form.validate()) {
         await this.$store.dispatch('account/deleteAccount', value)
+        await this.$store.dispatch('record/deleteRecordSets', value)
       }
       await this.$store.dispatch('account/loadAccountItems')
       await this.toggleDialog()

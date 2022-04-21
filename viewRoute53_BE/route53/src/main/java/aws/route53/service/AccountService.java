@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
@@ -15,13 +16,13 @@ public class AccountService {
     @Autowired
     AccountRepository accountRepository;
 
-    public List<AccountEntity> getAllAccount() throws Exception {
+    public List<AccountDto> getAllAccount() throws Exception {
         List<AccountEntity> accounts = accountRepository.findAllByOrderByAccountIdxDesc();
-//        List<AccountDto> result = accounts.stream()
-//                .map(o -> new AccountDto(o))
-//                .collect(Collectors.toList());
+        List<AccountDto> result = accounts.stream()
+                .map(o -> new AccountDto(o))
+                .collect(Collectors.toList());
 
-        return accounts;
+        return result;
     }
 
     public List<AccountEntity> getAccountByAccountIdx(Integer accountIdx) throws Exception {
@@ -37,7 +38,7 @@ public class AccountService {
         return accountRepository.findByHostedZoneIdOrderByAccountIdxDesc(HostedZoneId);
     }
 
-    public void save(AccountDto accountDto) throws Exception {
+    public void saveAccount(AccountDto accountDto) throws Exception {
         // 신규 Account 정보 DB에 저장
         AccountEntity result = AccountEntity.createAccount(
                 accountDto.getHostedZoneName(),
@@ -48,5 +49,20 @@ public class AccountService {
                 accountDto.getAwsCredentialKey());
         // RequestBody를 DB에 Insert
         accountRepository.save(result);
+    }
+
+    public AccountEntity putAccount(AccountDto accountDto) throws Exception {
+        // 기존 Account 정보 DB에 업데이트
+        AccountEntity result = AccountEntity.updateAccount(
+                accountDto.getAccountIdx(),
+                accountDto.getHostedZoneName(),
+                accountDto.getHostedZoneId(),
+                accountDto.getAccountName(),
+                accountDto.getTeam(),
+                accountDto.getAwsAccessKey(),
+                accountDto.getAwsCredentialKey());
+
+        // RequestBody를 DB에 Insert
+        return accountRepository.save(result);
     }
 }

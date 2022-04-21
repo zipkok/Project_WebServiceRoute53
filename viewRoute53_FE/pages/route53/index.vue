@@ -14,7 +14,7 @@
               dense
               label="Domain Zone을 선택하세요."
               class="pl-1 pr-2"
-              @click:clear="clearAutocomplate"
+              @click:clear="clearAutoComplete()"
             />
           </v-container>
 
@@ -46,7 +46,7 @@
           <v-text-field
             v-model="search"
             append-icon="mdi-magnify"
-            label="도메인을 검색하세요"
+            label="*Routing Value로는 검색 불가"
             class="pr-5"
           />
           <div class="pr-3">
@@ -124,6 +124,7 @@ export default {
       // autoCompletes
       values: '',
       accountList: [],
+      account: '',
 
       // Error Message
       snackbar: { bool: false, content: '' },
@@ -131,12 +132,42 @@ export default {
       // Table
       search: '',
       headers: [
-        { text: 'Record Name', width: '15%', class: 'warning--text' },
-        { text: 'Type', width: '8%', class: 'warning--text ' },
-        { text: 'TTL', width: '10%', class: 'warning--text ' },
-        { text: 'Routing Policy', width: '17%', class: 'warning--text' },
-        { text: 'Routing Value', width: '15%', class: 'warning--text ' },
-        { text: 'Record Value', width: '20%', class: 'warning--text ' },
+        {
+          text: 'Record Name',
+          width: '15%',
+          value: 'recordName',
+          class: 'warning--text',
+        },
+        {
+          text: 'Type',
+          width: '8%',
+          value: 'type',
+          class: 'warning--text ',
+        },
+        {
+          text: 'TTL',
+          width: '10%',
+          value: 'expire',
+          class: 'warning--text ',
+        },
+        {
+          text: 'Routing Policy',
+          width: '17%',
+          value: 'routingPolicy',
+          class: 'warning--text',
+        },
+        {
+          text: 'Routing Value',
+          width: '15%',
+          value: 'filterRouting',
+          class: 'warning--text ',
+        },
+        {
+          text: 'Record Value',
+          width: '20%',
+          value: 'recordSetsValue',
+          class: 'warning--text ',
+        },
       ],
     }
   },
@@ -152,38 +183,46 @@ export default {
   },
 
   methods: {
-    clearAutocomplate() {
+    clearAutoComplete() {
       this.values = ''
+      this.account = ''
     },
 
     async loadAccountItems() {
-      this.values = ''
+      this.clearAutoComplete()
       await this.$store
         .dispatch('account/loadAccountItems')
         .then((res) => {
           this.snackbar.bool = true
           this.snackbar.content = '계정 새로고침 성공 ' + res
+          this.snackbar.color = 'success'
           this.filterLoadAccountItems(this.accountItems)
         })
         .catch((err) => {
           this.snackbar.bool = true
           this.snackbar.content = '계정 새로고침 실패: ' + err
+          this.snackbar.color = 'red'
         })
     },
 
-    async reloadHostZoneIds(HostedZoneId) {
-      if (this.values === '') {
+    async reloadHostZoneIds() {
+      if (this.values === '' || this.values === null) {
         this.snackbar.bool = true
         this.snackbar.content = '계정을 선택해주세요.'
+        this.snackbar.color = 'red'
       } else {
-        const req = HostedZoneId.substring(0, 20)
+        const req = this.values.split('/')
+        const trimReq = req[0].trim()
+        await this.$store.dispatch('record/updateRecordSetItems', {
+          HostedZoneId: trimReq,
+        })
         await this.$store.dispatch('record/loadRecordSetItems', {
-          HostedZoneId: req,
+          HostedZoneId: trimReq,
         })
 
-        // TODO: 계정 로드 시 신규 데이터 조회 및 업데이트 필요
         this.snackbar.bool = true
         this.snackbar.content = '레코드 로드 성공.'
+        this.snackbar.color = 'success'
       }
     },
 
@@ -202,10 +241,12 @@ export default {
           await this.accountList.push(getterAccount)
           this.snackbar.bool = true
           this.snackbar.content = '계정 정보 재갱신'
+          this.snackbar.color = 'success'
         }
       } catch (err) {
         this.snackbar.bool = true
         this.snackbar.content = '계정 정보 로드 실패: ' + err
+        this.snackbar.color = 'red'
       }
     },
 

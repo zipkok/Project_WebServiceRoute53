@@ -68,7 +68,7 @@ export default {
       ],
       miniVariant: false,
 
-      title: 'Vuetify.js',
+      title: 'PSMT',
     }
   },
 

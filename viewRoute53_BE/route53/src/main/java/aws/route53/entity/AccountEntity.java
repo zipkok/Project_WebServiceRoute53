@@ -47,4 +47,24 @@ public class AccountEntity {
 
         return account;
     }
+
+    public static AccountEntity updateAccount(Integer accountIdx,
+                                              String hostedZoneName,
+                                              String hostedZoneId,
+                                              String accountName,
+                                              String team,
+                                              String aws_access_key,
+                                              String aws_secret_key) {
+        AccountEntity account = new AccountEntity();
+
+        account.setAccountIdx(accountIdx);
+        account.setHostedZoneName(hostedZoneName);
+        account.setHostedZoneId(hostedZoneId);
+        account.setAccountName(accountName);
+        account.setTeam(team);
+        account.setAws_access_key(aws_access_key);
+        account.setAws_secret_key(aws_secret_key);
+
+        return account;
+    }
 }

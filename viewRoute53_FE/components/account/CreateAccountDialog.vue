@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-dialog v-model="booleanDialog" persistent max-width="600px">
+    <v-dialog v-model="booleanDialog" persistent max-width="500px">
       <template v-slot:activator="{ on: dialog, attrs: dialogattr }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on: tooltip, attrs: tooltipattr }">
@@ -22,76 +22,63 @@
 
       <!-- Form Data -->
       <v-card>
-        <div style="background-color: #fffff0">
-          <v-card-title>
-            <span class="text-h5"> 신규 생성 </span>
-          </v-card-title>
-        </div>
+        <v-card-title class="blue-grey lighten-4">
+          <span class="text-h6" dark> Account 계정 등록 </span>
+        </v-card-title>
+
         <v-divider></v-divider>
+
         <v-card-text>
-          <v-container>
-            <v-form
-              ref="form"
-              v-model="valid"
-              @submit.prevent="addTodoSubmitForm"
-            >
-              <v-row>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="HostedzoneName"
-                    label="Zone Name*"
-                    required
-                  />
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="HostedzoneId"
-                    label="Zone Id*"
-                    required
-                  />
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="awsAccessKey"
-                    label="awsAccessKey*"
-                    required
-                  />
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="awsCredentialKey"
-                    label="awsCredentialKey*"
-                    required
-                  />
-                </v-col>
-                <v-col cols="6">
-                  <v-text-field v-model="team" label="당신의 팀은?*" required />
-                </v-col>
-                <v-col cols="6">
-                  <v-text-field
-                    v-model="awsAccount"
-                    label="당신의 AWS 계정 이름은?*"
-                    required
-                  />
-                </v-col>
-              </v-row>
-            </v-form>
-          </v-container>
+          <v-form ref="form" v-model="valid" @submit.prevent="saveAccount()">
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="HostedzoneName"
+                  label="Zone Name*"
+                  required
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="HostedzoneId"
+                  label="Zone Id*"
+                  required
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="awsAccessKey"
+                  label="awsAccessKey*"
+                  required
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="awsCredentialKey"
+                  label="awsCredentialKey*"
+                  required
+                />
+              </v-col>
+              <v-col cols="6">
+                <v-text-field v-model="team" label="당신의 팀은?*" required />
+              </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  v-model="awsAccount"
+                  label="당신의 AWS 계정 이름은?*"
+                  required
+                />
+              </v-col>
+            </v-row>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" nuxt text @click="cancel()">
+                취소
+              </v-btn>
+              <v-btn color="blue darken-1" text type="submit"> 저장 </v-btn>
+            </v-card-actions>
+          </v-form>
         </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" nuxt text @click="cancel()">
-            취소
-          </v-btn>
-          <v-btn
-            color="blue darken-1"
-            text
-            type="submit"
-            @click="saveAccount()"
-          >
-            저장
-          </v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
   </div>
@@ -138,8 +125,7 @@ export default {
       }
     },
 
-    async saveAccount(items) {
-      // TODO: Validattion 조건 만들어야한다.
+    async saveAccount() {
       if (this.$refs.form.validate()) {
         await this.$store.dispatch('account/saveAccount', {
           hostedZoneName: this.HostedzoneName,
@@ -151,6 +137,9 @@ export default {
         })
       }
       await this.$store.dispatch('account/loadAccountItems')
+      await this.$store.dispatch('record/createRecordSets', {
+        hostedZoneId: this.HostedzoneId,
+      })
       await this.initialContents()
       await this.toggleDialog()
     },
