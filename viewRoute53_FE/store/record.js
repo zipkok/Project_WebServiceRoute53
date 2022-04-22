@@ -32,9 +32,8 @@ export const actions = {
       .then((result) => {})
       .catch(() => {})
   },
- 
+
   async updateRecordSetItems({ commit, state }, payload) {
-    console.log('payload' + JSON.stringify(payload))
     await this.$axios
       .put(process.env.backendUrl + '/recordsets/' + payload.HostedZoneId)
       .then((result) => {})

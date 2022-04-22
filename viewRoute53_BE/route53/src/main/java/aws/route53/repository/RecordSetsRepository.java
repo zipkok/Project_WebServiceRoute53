@@ -22,7 +22,5 @@ public interface RecordSetsRepository  extends CrudRepository<RecordSetsEntity, 
 
     // Delete FROM tb_record_sets WHERE HostedZoneId = ?
     void deleteByHostedZoneIdOrderByRecordSetsIdxDesc(String hostedZoneId);
-
-
 }
 
