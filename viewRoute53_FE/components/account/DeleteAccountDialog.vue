@@ -97,7 +97,9 @@ export default {
       console.log('deleteAccount' + value)
       if (this.$refs.form.validate()) {
         await this.$store.dispatch('account/deleteAccount', value)
-        await this.$store.dispatch('record/deleteRecordSets', value)
+        await this.$store.dispatch('record/deleteRecordSets', {
+          HostedZoneId: value.hostedZoneId,
+        })
       }
       await this.$store.dispatch('account/loadAccountItems')
       await this.toggleDialog()

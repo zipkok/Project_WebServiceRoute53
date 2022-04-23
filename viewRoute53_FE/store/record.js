@@ -29,7 +29,7 @@ export const actions = {
   async deleteRecordSets({ commit, state }, payload) {
     console.log('deleteAccount payload' + JSON.stringify(payload))
     await this.$axios
-      .delete(process.env.backendUrl + '/recordsets/' + payload.hostedZoneId)
+      .delete(process.env.backendUrl + '/recordsets/' + payload.HostedZoneId)
       .then((result) => {})
       .catch(() => {})
   },
