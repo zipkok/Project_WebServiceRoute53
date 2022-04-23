@@ -94,7 +94,6 @@ export default {
     },
 
     async deleteAccount(value) {
-      console.log('deleteAccount' + value)
       if (this.$refs.form.validate()) {
         await this.$store.dispatch('account/deleteAccount', value)
         await this.$store.dispatch('record/deleteRecordSets', {

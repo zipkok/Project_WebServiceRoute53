@@ -51,7 +51,6 @@ export const actions = {
 
   // 회원 정보 수정
   async putAccount({ commit, state }, payload) {
-    console.log(JSON.stringify(payload))
     await this.$axios
       .put(process.env.backendUrl + '/account/idx/' + payload.accountIdx)
       .then(() => {})

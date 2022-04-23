@@ -22,7 +22,7 @@
 
       <!-- Form Data -->
       <v-card>
-        <v-card-title class="blue-grey lighten-4">
+        <v-card-title dark>
           <span class="text-h6" dark> Account 계정 등록 </span>
         </v-card-title>
 

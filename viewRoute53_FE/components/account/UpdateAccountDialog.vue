@@ -23,7 +23,7 @@
 
       <!-- Form Data -->
       <v-card>
-        <v-card-title class="blue-grey lighten-4">
+        <v-card-title dark>
           <span class="text-h6" dark> Account 정보 수정 </span>
         </v-card-title>
 
@@ -118,7 +118,6 @@ export default {
 
     enableDialog(item) {
       try {
-        console.log(item)
         this.accountIdx = item.accountIdx
         this.HostedzoneName = item.hostedZoneName
         this.HostedzoneId = item.hostedZoneId
@@ -162,7 +161,6 @@ export default {
 
           await this.$store.dispatch('account/loadAccountItems')
         } catch (error) {}
-        // TODO: Exception PAGE or Alert 만들기!
       }
       await this.initialContents()
       await this.toggleDialog()

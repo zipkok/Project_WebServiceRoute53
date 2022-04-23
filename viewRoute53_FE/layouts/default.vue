@@ -35,7 +35,11 @@
 
       <v-card-title class="d-flex justify-center" v-text="title" />
       <v-spacer />
-      <v-switch v-model="$vuetify.theme.dark" inset persistent-hint></v-switch>
+      <v-switch
+        v-model="$vuetify.theme.dark"
+        prepend-icon="mdi-brightness-4"
+        class="pt-5"
+      ></v-switch>
     </v-app-bar>
     <v-main>
       <v-container>
