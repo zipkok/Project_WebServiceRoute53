@@ -34,6 +34,8 @@
       <v-divider class="mr-2 pl-2" vertical />
 
       <v-card-title class="d-flex justify-center" v-text="title" />
+      <v-spacer />
+      <v-switch v-model="$vuetify.theme.dark" inset persistent-hint></v-switch>
     </v-app-bar>
     <v-main>
       <v-container>
@@ -62,7 +64,7 @@ export default {
         },
         {
           icon: 'mdi-chart-bubble',
-          title: 'Route53',
+          title: '53Vuer',
           to: '/route53',
         },
       ],

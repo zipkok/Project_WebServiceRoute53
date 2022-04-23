@@ -66,7 +66,12 @@
           </div>
         </v-card-title>
 
-        <v-data-table :headers="headers" :items="recordsItems" :search="search">
+        <v-data-table
+          :headers="headers"
+          :items="recordsItems"
+          :search="search"
+          :items-per-page="15"
+        >
           <template v-slot:body="{ items }">
             <tbody>
               <tr v-for="item in items" :key="item.index">

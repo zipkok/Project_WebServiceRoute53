@@ -18,7 +18,7 @@
               v-on="{ ...tooltip, ...dialog }"
               @click="enableDialog(item)"
             >
-              <v-icon color="grey darken-2">mdi-delete</v-icon>
+              <v-icon dark>mdi-delete</v-icon>
             </v-btn>
           </template>
 
@@ -36,26 +36,22 @@
         <v-divider></v-divider>
         <v-card-text>
           <v-container>
-            <v-form ref="form" v-model="valid" @submit.prevent="editItem(item)">
+            <v-form
+              ref="form"
+              v-model="valid"
+              @submit.prevent="deleteAccount(item)"
+            >
               <pre id="json">{{ item }}</pre>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" nuxt text @click="cancel()">
+                  취소
+                </v-btn>
+                <v-btn color="blue darken-1" text type="submit"> 삭제 </v-btn>
+              </v-card-actions>
             </v-form>
           </v-container>
         </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" nuxt text @click="cancel()">
-            취소
-          </v-btn>
-          <v-btn
-            color="blue darken-1"
-            text
-            type="submit"
-            @click="deleteAccount(item)"
-          >
-            삭제
-          </v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
   </div>
@@ -98,7 +94,7 @@ export default {
     },
 
     async deleteAccount(value) {
-      // TODO: Validattion 조건 만들어야한다.
+      console.log('deleteAccount' + value)
       if (this.$refs.form.validate()) {
         await this.$store.dispatch('account/deleteAccount', value)
         await this.$store.dispatch('record/deleteRecordSets', value)

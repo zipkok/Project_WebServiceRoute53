@@ -32,4 +32,25 @@ public class CompareRecordSetsDto {
         routeWeight = recordSetsEntity.getRouteWeight();
 
     }
+
+    public static CompareRecordSetsDto CreateCompareRecordSetsDto(String recordName,
+                                                                  String type,
+                                                                  Long expire,
+                                                                  String recordSetsValue,
+                                                                  String routingPolicy,
+                                                                  String routingGeoLocation,
+                                                                  String routingLatencyRegion,
+                                                                  String routeWeight) {
+        CompareRecordSetsDto expectedUpdateRecordSets = new CompareRecordSetsDto();
+        expectedUpdateRecordSets.setRecordName(recordName);
+        expectedUpdateRecordSets.setType(type);
+        expectedUpdateRecordSets.setExpire(expire);
+        expectedUpdateRecordSets.setRecordSetsValue(recordSetsValue);
+        expectedUpdateRecordSets.setRoutingPolicy(routingPolicy);
+        expectedUpdateRecordSets.setRouteGeoLocation(routingGeoLocation);
+        expectedUpdateRecordSets.setRouteLatencyRegion(routingLatencyRegion);
+        expectedUpdateRecordSets.setRouteWeight(routeWeight);
+
+        return expectedUpdateRecordSets;
+    }
 }

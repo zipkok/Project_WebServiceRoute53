@@ -2,7 +2,7 @@
   <div>
     <v-dialog v-model="booleanDialog" persistent max-width="500px">
       <template v-slot:activator="{ on: dialog, attrs: dialogattr }">
-        <v-tooltip bottom>
+        <v-tooltip dark bottom>
           <template v-slot:activator="{ on: tooltip, attrs: tooltipattr }">
             <v-btn
               color="info"

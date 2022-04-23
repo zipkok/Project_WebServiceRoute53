@@ -50,6 +50,11 @@ public class RecordSetsService {
         recordSetsRepository.deleteByHostedZoneIdOrderByRecordSetsIdxDesc(HostedZoneId);
     }
 
+    @Transactional
+    public void removeRecordSetsWithRecordName(String RecordName) throws Exception {
+        recordSetsRepository.deleteByRecordNameOrderByRecordSetsIdxDesc(RecordName);
+    }
+
     public void createRecordSets(String hostedZoneId, String awsAccessKey, String awsSecretKey) throws Exception {
         // --profile
         AwsBasicCredentials awsCreds = AwsBasicCredentials.create(awsAccessKey, awsSecretKey);
@@ -136,6 +141,7 @@ public class RecordSetsService {
         route53Client.close();
     }
 
+    @Transactional
     public HashMap<Integer, CompareRecordSetsDto> updateRecordSets(String hostedZoneId,
                                                                    String awsAccessKey,
                                                                    String awsSecretKey) throws Exception {
@@ -178,6 +184,73 @@ public class RecordSetsService {
             dbListToHashMap.put(a.getRecordSetsIdx(), compareHashMap);
         }
 
+        // 비교를 위해 records 데이터 정제, HashMap 과 awscli 비교
+        for (ResourceRecordSet record : records) {
+            List<String> recordSetsItemsParseToList = new ArrayList<>();
+
+            for (ResourceRecord a :  record.resourceRecords() ) {
+                recordSetsItemsParseToList.add(a.value());
+            }
+            String recordSetsItemsToString = recordSetsItemsParseToList
+                    .toString()
+                    .replace("[","")
+                    .replace("]","");
+
+
+            String routingPolicy = "Simple";
+            String routingGeoLocation = "-";
+            String routingLatencyRegion = "-";
+            String routeWeight = "-";
+
+            // Routing Policy가 GeoLocation 경우
+            if (record.geoLocation() != null) {
+                if(record.geoLocation().continentCode() != null) {
+                    routingGeoLocation = "대륙: " + record.geoLocation().continentCode();
+                } else {
+                    routingGeoLocation = "국가: " + record.geoLocation().countryCode();
+                }
+                routingPolicy = "GeoLocation";
+            }
+
+            // Routing Policy가 Latency 경우
+            if (record.region() != null) {
+                routingLatencyRegion = record.region().toString();
+                routingPolicy = "Latency";
+            }
+
+            if (record.weight() != null) {
+                routeWeight = record.weight().toString();
+                routingPolicy = "Weight";
+            }
+
+            // 비교 데이터 생성
+            CompareRecordSetsDto CompareRecordSets = CompareRecordSetsDto.CreateCompareRecordSetsDto(
+                    record.name(),
+                    record.typeAsString(),
+                    record.ttl(),
+                    recordSetsItemsToString,
+                    routingPolicy,
+                    routingGeoLocation,
+                    routingLatencyRegion,
+                    routeWeight
+            );
+
+            // Record가 HashMap에 존재하면 True (이미 등록된 값)
+            // 비교값: recordName, type, expire, recordSetsItems
+            if(dbListToHashMap.containsValue(CompareRecordSets)) {
+                System.out.println("================================");
+                System.out.println("Not Deleted " + record.name() + " / " + recordSetsItemsToString);
+                // 변경된 값이 있는지 확인.
+
+            // Record가 HashMap에 존재하지 않으면 False (수정이 필요한 데이터)
+            } else {
+                System.out.println("================================");
+                System.out.println("Remove ... " + record.name() + " / " + recordSetsItemsToString);
+                System.out.println("================================");
+                removeRecordSetsWithRecordName(record.name());
+                // recordSetsRepository.save(recordSets);
+            }
+        }
 
         // 비교를 위해 records 데이터 정제, HashMap 과 awscli 비교
         for (ResourceRecordSet record : records) {
@@ -219,28 +292,28 @@ public class RecordSetsService {
             }
 
             // 비교 데이터 생성
-            CompareRecordSetsDto expectedUpdateRecordSets = new CompareRecordSetsDto();
-            expectedUpdateRecordSets.setRecordName(record.name());
-            expectedUpdateRecordSets.setType(record.typeAsString());
-            expectedUpdateRecordSets.setExpire(record.ttl());
-            expectedUpdateRecordSets.setRecordSetsValue(recordSetsItemsToString);
-            expectedUpdateRecordSets.setRoutingPolicy(routingPolicy);
-            expectedUpdateRecordSets.setRouteGeoLocation(routingGeoLocation);
-            expectedUpdateRecordSets.setRouteLatencyRegion(routingLatencyRegion);
-            expectedUpdateRecordSets.setRouteWeight(routeWeight);
+            CompareRecordSetsDto CompareRecordSets = CompareRecordSetsDto.CreateCompareRecordSetsDto(
+                    record.name(),
+                    record.typeAsString(),
+                    record.ttl(),
+                    recordSetsItemsToString,
+                    routingPolicy,
+                    routingGeoLocation,
+                    routingLatencyRegion,
+                    routeWeight
+            );
 
             // Record가 HashMap에 존재하면 True (이미 등록된 값)
             // 비교값: recordName, type, expire, recordSetsItems
-            if(dbListToHashMap.containsValue(expectedUpdateRecordSets)) {
+            if(dbListToHashMap.containsValue(CompareRecordSets)) {
                 System.out.println("================================");
-                System.out.println("True" + expectedUpdateRecordSets);
+                System.out.println("Not Create ... " + record.name() + " / " + recordSetsItemsToString);
                 // 변경된 값이 있는지 확인.
 
-            // Record가 HashMap에 존재하지 않으면 False (수정이 필요한 데이터)
+                // Record가 HashMap에 존재하지 않으면 False (수정이 필요한 데이터)
             } else {
                 System.out.println("================================");
-                System.out.println("False" + expectedUpdateRecordSets);
-                System.out.println("False" + dbListToHashMap.containsValue(expectedUpdateRecordSets));
+                System.out.println("Create ... " + record.name() + " / " + recordSetsItemsToString);
                 System.out.println("================================");
                 RecordSetsEntity recordSets = RecordSetsEntity.createRecordSets(
                         record.name(),
@@ -259,7 +332,6 @@ public class RecordSetsService {
 
         // AWSCLI close()
         route53Client.close();
-
         return dbListToHashMap;
     }
 }
