@@ -6,6 +6,7 @@ import aws.route53.entity.RecordSetsEntity;
 
 import aws.route53.repository.RecordSetsRepository;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,7 +146,7 @@ public class RecordSetsService {
     public HashMap<Integer, CompareRecordSetsDto> updateRecordSets(String hostedZoneId,
                                                                    String awsAccessKey,
                                                                    String awsSecretKey) throws Exception {
-
+        String maxItems = "1000000";
         // --profile
         AwsBasicCredentials awsCreds = AwsBasicCredentials.create(awsAccessKey, awsSecretKey);
 
@@ -160,12 +161,16 @@ public class RecordSetsService {
                 .build();
 
         // aws route53 list-resource-recordsets
+
         ListResourceRecordSetsRequest request = ListResourceRecordSetsRequest.builder()
                 .hostedZoneId(hostedZoneId)
+                .maxItems("1")
                 .build();
 
         ListResourceRecordSetsResponse listResourceRecordSets = route53Client.listResourceRecordSets(request);
         List<ResourceRecordSet> records = listResourceRecordSets.resourceRecordSets();
+        // List<ResourceRecordSet> records = new ArrayList<>();
+
 
         // DB -> List -> HashMap, dbHashMap에 저장.
         HashMap<Integer, CompareRecordSetsDto> dbListToHashMap = new HashMap<>();
