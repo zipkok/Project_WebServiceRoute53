@@ -34,6 +34,9 @@ public class RecordSetsService {
     @Autowired
     RecordSetsRepository recordSetsRepository;
 
+    @Autowired
+    AwsCredentials awsCredentials;
+
     public List<RecordSetsEntity> getRecordSets() throws Exception {
         return recordSetsRepository.findAllByOrderByHostedZoneIdDesc();
     }
@@ -57,28 +60,9 @@ public class RecordSetsService {
     }
 
     public void createRecordSets(String hostedZoneId, String awsAccessKey, String awsSecretKey) throws Exception {
-        // --profile
-        AwsBasicCredentials awsCreds = AwsBasicCredentials.create(awsAccessKey, awsSecretKey);
-
-        // -- region
-        Region region = Region.AWS_GLOBAL;
-
-        // Execute awscli
-        Route53Client route53Client = Route53Client
-                .builder()
-                .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
-                .region(region)
-                .build();
-
-        // aws route53 list-resource-recordsets
-        ListResourceRecordSetsRequest request = ListResourceRecordSetsRequest.builder()
-                .hostedZoneId(hostedZoneId)
-                .build();
-
-        ListResourceRecordSetsResponse listResourceRecordSets = route53Client.listResourceRecordSets(request);
-        List<ResourceRecordSet> records = listResourceRecordSets.resourceRecordSets();
-
-        System.out.println("records" + records);
+        awsCredentials.setCredentials(awsAccessKey, awsSecretKey);
+        awsCredentials.setRoute53Client();
+        List<ResourceRecordSet> records = awsCredentials.getRoute53Info(hostedZoneId);
 
         // Data DB Insert
         for (ResourceRecordSet record : records) {
@@ -137,40 +121,15 @@ public class RecordSetsService {
             // Repository로 저장
             recordSetsRepository.save(recordSets);
         }
-
-        // AWSCLI close()
-        route53Client.close();
     }
 
     @Transactional
     public HashMap<Integer, CompareRecordSetsDto> updateRecordSets(String hostedZoneId,
                                                                    String awsAccessKey,
                                                                    String awsSecretKey) throws Exception {
-        String maxItems = "1000000";
-        // --profile
-        AwsBasicCredentials awsCreds = AwsBasicCredentials.create(awsAccessKey, awsSecretKey);
-
-        // -- region
-        Region region = Region.AWS_GLOBAL;
-
-        // Execute awscli
-        Route53Client route53Client = Route53Client
-                .builder()
-                .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
-                .region(region)
-                .build();
-
-        // aws route53 list-resource-recordsets
-
-        ListResourceRecordSetsRequest request = ListResourceRecordSetsRequest.builder()
-                .hostedZoneId(hostedZoneId)
-                .maxItems("1")
-                .build();
-
-        ListResourceRecordSetsResponse listResourceRecordSets = route53Client.listResourceRecordSets(request);
-        List<ResourceRecordSet> records = listResourceRecordSets.resourceRecordSets();
-        // List<ResourceRecordSet> records = new ArrayList<>();
-
+        awsCredentials.setCredentials(awsAccessKey, awsSecretKey);
+        awsCredentials.setRoute53Client();
+        List<ResourceRecordSet> records = awsCredentials.getRoute53Info(hostedZoneId);
 
         // DB -> List -> HashMap, dbHashMap에 저장.
         HashMap<Integer, CompareRecordSetsDto> dbListToHashMap = new HashMap<>();
@@ -336,7 +295,6 @@ public class RecordSetsService {
         }
 
         // AWSCLI close()
-        route53Client.close();
         return dbListToHashMap;
     }
 }

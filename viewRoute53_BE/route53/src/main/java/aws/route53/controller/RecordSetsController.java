@@ -1,11 +1,16 @@
 package aws.route53.controller;
 
+import aws.route53.domain.Result;
+import aws.route53.dto.CommonResponse;
 import aws.route53.dto.CompareRecordSetsDto;
 import aws.route53.dto.RecordSetsDto;
 import aws.route53.entity.AccountEntity;
 import aws.route53.service.AccountService;
 import aws.route53.service.RecordSetsService;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +21,8 @@ import java.util.List;
 @RestController
 @CrossOrigin("*")
 public class RecordSetsController {
+
+    Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     RecordSetsService recordSetsService;
@@ -44,11 +51,18 @@ public class RecordSetsController {
      * 신규 Account 등록 시 awscli -> DB Insert
      */
     @PostMapping("/recordsets/{HostedZoneId}")
-    public void createRecordSets(@PathVariable @Valid String HostedZoneId) throws Exception {
+    public CommonResponse<JsonNode> createRecordSets(@PathVariable @Valid String HostedZoneId) throws Exception {
         List<AccountEntity> credentials = accountService.getAccountCredentials(HostedZoneId);
-        recordSetsService.createRecordSets(HostedZoneId,
-                                            credentials.get(0).getAws_access_key(),
-                                            credentials.get(0).getAws_secret_key());
+        try {
+            recordSetsService.createRecordSets(HostedZoneId,
+                    credentials.get(0).getAws_access_key(),
+                    credentials.get(0).getAws_secret_key());
+        } catch (Exception e) {
+            log.error("CreateRecordSets Exception: {}", e);
+            return new CommonResponse<>(Result.FAIL);
+        }
+        return new CommonResponse<>(Result.SUCCESS);
+
     }
 
     /**
