@@ -8,8 +8,8 @@ public enum Result {
     FAIL(-1, "Failed"),
     HTTP_REQUEST_ERROR(100, "HTTP Request Failed");
 
-    private int code;
-    private String msg;
+    private final int code;
+    private final String msg;
 
     Result(int code, String msg) {
         this.code = code;

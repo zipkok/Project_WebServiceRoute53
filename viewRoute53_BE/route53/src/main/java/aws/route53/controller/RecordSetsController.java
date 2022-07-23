@@ -30,14 +30,14 @@ public class RecordSetsController {
     @Autowired
     AccountService accountService;
 
-//    @GetMapping("/recordsets/test/{HostedZoneId}")
-//    public void test(@PathVariable @Valid String HostedZoneId) throws Exception {
-//        List<AccountEntity> credentials = accountService.getAccountCredentials(HostedZoneId);
-//        recordSetsService.createRecordSets(HostedZoneId,
-//                credentials.get(0).getAws_access_key(),
-//                credentials.get(0).getAws_secret_key());
-//
-//    }
+
+    /**
+     * DB에서 모든 레코드를 조회 후 Response
+     */
+    @GetMapping("/recordsets/")
+    public List<RecordSetsDto> getRecordSets() throws Exception {
+        return recordSetsService.getRecordSets();
+    }
 
     /**
      * HostedZoneId를 기준으로 DB에서 데이터 조회 후 Response
@@ -74,7 +74,10 @@ public class RecordSetsController {
     }
 
     /**
-     * Update
+     *
+     * @param HostedZoneId
+     * @return updateRecordSets(HostedZoneId, getAws_access_key, getAws_secret_key)
+     * @throws Exception
      */
     @PutMapping("/recordsets/{HostedZoneId}")
     public HashMap<Integer, CompareRecordSetsDto> update(@PathVariable @Valid String HostedZoneId) throws Exception {

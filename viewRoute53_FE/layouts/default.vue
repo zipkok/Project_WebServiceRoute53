@@ -62,14 +62,9 @@ export default {
       fixed: false,
       items: [
         {
-          icon: 'mdi-apps',
-          title: 'Admin',
-          to: '/route53/admin',
-        },
-        {
           icon: 'mdi-chart-bubble',
           title: '53Vuer',
-          to: '/route53',
+          to: '/v2/route53',
         },
       ],
       miniVariant: false,

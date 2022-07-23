@@ -1,5 +1,6 @@
 export const state = () => ({
   recordsItems: [],
+  recordsItemsWithHostedZoneId: [],
 })
 
 export const mutations = {
@@ -9,8 +10,16 @@ export const mutations = {
 }
 
 export const actions = {
-  //  Load a ListRecordSets using Account
   async loadRecordSetItems({ commit, state }, payload) {
+    await this.$axios
+      .get(process.env.backendUrl + '/recordsets/')
+      .then((res) => {
+        commit('loadRecordSetItems', res.data)
+      })
+      .catch(() => {})
+  },
+
+  async loadRecordSetItemsWithHostedZoneId({ commit, state }, payload) {
     await this.$axios
       .get(process.env.backendUrl + '/recordsets/' + payload.HostedZoneId)
       .then((res) => {

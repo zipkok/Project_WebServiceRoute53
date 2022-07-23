@@ -37,8 +37,11 @@ public class RecordSetsService {
     @Autowired
     AwsCredentials awsCredentials;
 
-    public List<RecordSetsEntity> getRecordSets() throws Exception {
-        return recordSetsRepository.findAllByOrderByHostedZoneIdDesc();
+    public List<RecordSetsDto> getRecordSets() throws Exception {
+        List<RecordSetsEntity> recordsets =recordSetsRepository.findAllByOrderByHostedZoneIdDesc();
+        return recordsets.stream()
+                .map(o -> new RecordSetsDto(o))
+                .collect(Collectors.toList());
     }
 
     public List<RecordSetsDto> getRecordSetsWithHostedZoneId(String HostedZoneId) throws  Exception {
@@ -54,11 +57,23 @@ public class RecordSetsService {
         recordSetsRepository.deleteByHostedZoneIdOrderByRecordSetsIdxDesc(HostedZoneId);
     }
 
+    /**
+     * @param RecordName
+     * @return void
+     * @throws Exception
+     */
     @Transactional
     public void removeRecordSetsWithRecordName(String RecordName) throws Exception {
         recordSetsRepository.deleteByRecordNameOrderByRecordSetsIdxDesc(RecordName);
     }
 
+    /**
+     * @param hostedZoneId
+     * @param awsAccessKey
+     * @param awsSecretKey
+     * @return void
+     * @throws Exception
+     */
     public void createRecordSets(String hostedZoneId, String awsAccessKey, String awsSecretKey) throws Exception {
         awsCredentials.setCredentials(awsAccessKey, awsSecretKey);
         awsCredentials.setRoute53Client();
@@ -76,8 +91,6 @@ public class RecordSetsService {
                     .toString()
                     .replace("[","")
                     .replace("]","");
-
-
             String routingPolicy = "Simple";
             String routingGeoLocation = "-";
             String routingLatencyRegion = "-";
@@ -123,6 +136,14 @@ public class RecordSetsService {
         }
     }
 
+    /**
+     *
+     * @param hostedZoneId
+     * @param awsAccessKey
+     * @param awsSecretKey
+     * @return dbListToHashMap
+     * @throws Exception
+     */
     @Transactional
     public HashMap<Integer, CompareRecordSetsDto> updateRecordSets(String hostedZoneId,
                                                                    String awsAccessKey,
@@ -274,7 +295,7 @@ public class RecordSetsService {
                 System.out.println("Not Create ... " + record.name() + " / " + recordSetsItemsToString);
                 // 변경된 값이 있는지 확인.
 
-                // Record가 HashMap에 존재하지 않으면 False (수정이 필요한 데이터)
+            // Record가 HashMap에 존재하지 않으면 False (수정이 필요한 데이터)
             } else {
                 System.out.println("================================");
                 System.out.println("Create ... " + record.name() + " / " + recordSetsItemsToString);
@@ -293,7 +314,6 @@ public class RecordSetsService {
                 recordSetsRepository.save(recordSets);
             }
         }
-
         // AWSCLI close()
         return dbListToHashMap;
     }

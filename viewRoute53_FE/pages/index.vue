@@ -2,7 +2,7 @@
 export default {
   middleware: [
     function ({ redirect }) {
-      redirect('/route53')
+      redirect('/v2/route53')
     },
   ],
 }
