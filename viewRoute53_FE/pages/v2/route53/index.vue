@@ -4,7 +4,6 @@
       <v-card elevation="20">
         <v-card-actions>
           <v-container>
-            <!-- TODO: autocomplete multiple 설정 추가 -->
             <v-autocomplete
               v-model="values"
               :items="accountList"
@@ -35,21 +34,7 @@
               <span>계정 재갱신</span>
             </v-tooltip>
           </div>
-        </v-card-actions>
-      </v-card>
-    </v-container>
-
-    <v-container>
-      <v-card elevation="20">
-        <v-card-title>
-          <!-- DataTable Header 윗 부분, 검색 -->
-          <v-text-field
-            v-model="search"
-            append-icon="mdi-magnify"
-            label="*Routing Value로는 검색 불가"
-            class="pr-5"
-          />
-          <div class="pr-3">
+          <div class="pb-6 pr-5">
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
@@ -64,6 +49,20 @@
               <span>레코드 재갱신</span>
             </v-tooltip>
           </div>
+        </v-card-actions>
+      </v-card>
+    </v-container>
+
+    <v-container>
+      <v-card elevation="20">
+        <v-card-title>
+          <!-- DataTable Header 윗 부분, 검색 -->
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="*Routing Value로는 검색 불가"
+            class="pr-5"
+          />
         </v-card-title>
 
         <v-data-table
@@ -71,6 +70,7 @@
           :items="recordsItems"
           :search="search"
           :items-per-page="15"
+          :loading="loading"
         >
           <template v-slot:body="{ items }">
             <tbody>
@@ -134,6 +134,7 @@ export default {
 
       // Error Message
       snackbar: { bool: false, content: '' },
+      loading: false,
 
       // Table
       search: '',
@@ -183,9 +184,6 @@ export default {
       return this.$store.state.record.recordsItems
     },
 
-    recordsItemsWithHostedZoneId() {
-      return this.$store.state.record.recordsItemsWithHostedZoneId
-    },
     accountItems() {
       return this.$store.state.account.accountItems
     },
@@ -219,6 +217,29 @@ export default {
       this.snackbar.bool = true
       this.snackbar.content = '레코드 로드 성공.'
       this.snackbar.color = 'success'
+    },
+
+    async reloadHostZoneIds() {
+      this.loading = true
+      if (this.values === '' || this.values === null) {
+        this.snackbar.bool = true
+        this.snackbar.content = '계정을 선택해주세요.'
+        this.snackbar.color = 'red'
+      } else {
+        const req = this.values.split('/')
+        const trimReq = req[0].trim()
+
+        await this.$store.dispatch(
+          'record/loadRecordSetItemsWithHostedZoneId',
+          {
+            HostedZoneId: trimReq,
+          }
+        )
+        this.snackbar.bool = true
+        this.snackbar.content = '레코드 로드 성공.'
+        this.snackbar.color = 'success'
+      }
+      this.loading = false
     },
 
     async filterLoadAccountItems(AccountItems) {

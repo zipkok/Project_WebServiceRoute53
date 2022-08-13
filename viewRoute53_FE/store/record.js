@@ -1,6 +1,5 @@
 export const state = () => ({
   recordsItems: [],
-  recordsItemsWithHostedZoneId: [],
 })
 
 export const mutations = {

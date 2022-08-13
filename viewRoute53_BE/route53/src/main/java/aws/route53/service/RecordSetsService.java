@@ -156,6 +156,7 @@ public class RecordSetsService {
         HashMap<Integer, CompareRecordSetsDto> dbListToHashMap = new HashMap<>();
         List<RecordSetsEntity> dbList = recordSetsRepository.findAllByOrderByRecordSetsIdxDesc();
 
+        // DB 데이터 저장하기 -> compareHashMap
         for (RecordSetsEntity a : dbList) {
             CompareRecordSetsDto compareHashMap = new CompareRecordSetsDto();
             compareHashMap.setRecordName(a.getRecordName());
@@ -169,6 +170,7 @@ public class RecordSetsService {
             dbListToHashMap.put(a.getRecordSetsIdx(), compareHashMap);
         }
 
+        // awscli 값 저장하기 -> recordSetsItemsParseToList, CompareRecordSets
         // 비교를 위해 records 데이터 정제, HashMap 과 awscli 비교
         for (ResourceRecordSet record : records) {
             List<String> recordSetsItemsParseToList = new ArrayList<>();
@@ -223,83 +225,13 @@ public class RecordSetsService {
             // Record가 HashMap에 존재하면 True (이미 등록된 값)
             // 비교값: recordName, type, expire, recordSetsItems
             if(dbListToHashMap.containsValue(CompareRecordSets)) {
-                System.out.println("================================");
-                System.out.println("Not Deleted " + record.name() + " / " + recordSetsItemsToString);
-                // 변경된 값이 있는지 확인.
+
 
             // Record가 HashMap에 존재하지 않으면 False (수정이 필요한 데이터)
             } else {
-                System.out.println("================================");
-                System.out.println("Remove ... " + record.name() + " / " + recordSetsItemsToString);
-                System.out.println("================================");
+                // 변경되었을 경우
                 removeRecordSetsWithRecordName(record.name());
                 // recordSetsRepository.save(recordSets);
-            }
-        }
-
-        // 비교를 위해 records 데이터 정제, HashMap 과 awscli 비교
-        for (ResourceRecordSet record : records) {
-            List<String> recordSetsItemsParseToList = new ArrayList<>();
-
-            for (ResourceRecord a :  record.resourceRecords() ) {
-                recordSetsItemsParseToList.add(a.value());
-            }
-            String recordSetsItemsToString = recordSetsItemsParseToList
-                    .toString()
-                    .replace("[","")
-                    .replace("]","");
-
-
-            String routingPolicy = "Simple";
-            String routingGeoLocation = "-";
-            String routingLatencyRegion = "-";
-            String routeWeight = "-";
-
-            // Routing Policy가 GeoLocation 경우
-            if (record.geoLocation() != null) {
-                if(record.geoLocation().continentCode() != null) {
-                    routingGeoLocation = "대륙: " + record.geoLocation().continentCode();
-                } else {
-                    routingGeoLocation = "국가: " + record.geoLocation().countryCode();
-                }
-                routingPolicy = "GeoLocation";
-            }
-
-            // Routing Policy가 Latency 경우
-            if (record.region() != null) {
-                routingLatencyRegion = record.region().toString();
-                routingPolicy = "Latency";
-            }
-
-            if (record.weight() != null) {
-                routeWeight = record.weight().toString();
-                routingPolicy = "Weight";
-            }
-
-            // 비교 데이터 생성
-            CompareRecordSetsDto CompareRecordSets = CompareRecordSetsDto.CreateCompareRecordSetsDto(
-                    record.name(),
-                    record.typeAsString(),
-                    record.ttl(),
-                    recordSetsItemsToString,
-                    routingPolicy,
-                    routingGeoLocation,
-                    routingLatencyRegion,
-                    routeWeight
-            );
-
-            // Record가 HashMap에 존재하면 True (이미 등록된 값)
-            // 비교값: recordName, type, expire, recordSetsItems
-            if(dbListToHashMap.containsValue(CompareRecordSets)) {
-                System.out.println("================================");
-                System.out.println("Not Create ... " + record.name() + " / " + recordSetsItemsToString);
-                // 변경된 값이 있는지 확인.
-
-            // Record가 HashMap에 존재하지 않으면 False (수정이 필요한 데이터)
-            } else {
-                System.out.println("================================");
-                System.out.println("Create ... " + record.name() + " / " + recordSetsItemsToString);
-                System.out.println("================================");
                 RecordSetsEntity recordSets = RecordSetsEntity.createRecordSets(
                         record.name(),
                         record.typeAsString(),
@@ -312,6 +244,7 @@ public class RecordSetsService {
                         routeWeight
                 );
                 recordSetsRepository.save(recordSets);
+                log.info("update to record: " + record.name());
             }
         }
         // AWSCLI close()
